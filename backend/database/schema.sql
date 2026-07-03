@@ -90,6 +90,24 @@ CREATE TABLE cart (
     UNIQUE(user_id, product_id)
 );
 
+--NEGOTIATIONS TABLE
+DROP TABLE IF EXISTS negotiations CASCADE;
+CREATE TABLE negotiations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    buyer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    seller_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    offered_price NUMERIC(12,2) NOT NULL CHECK (offered_price > 0), 
+    counter_price NUMERIC(12,2) CHECK (counter_price > 0),
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'countered', 'accepted', 'rejected', 'expired')),
+    buyer_message TEXT,
+    seller_message TEXT,
+    counter_round INTEGER DEFAULT 1 CHECK (counter_round <= 3),
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
 -- INDEXES just for performance optimization
 
 CREATE INDEX idx_users_email ON users(email);
@@ -104,3 +122,8 @@ CREATE INDEX idx_products_name ON products(product_name);
 CREATE INDEX idx_products_price ON products(price);
 CREATE INDEX idx_cart_user ON cart(user_id);
 CREATE INDEX idx_cart_product ON cart(product_id);
+
+CREATE INDEX idx_negotiations_buyer ON negotiations(buyer_id);
+CREATE INDEX idx_negotiations_seller ON negotiations(seller_id);
+CREATE INDEX idx_negotiations_product ON negotiations(product_id);
+CREATE INDEX idx_negotiations_status ON negotiations(status);

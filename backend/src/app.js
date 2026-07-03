@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
+
 const log = require('./config/logger');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const negotiationRoutes = require('./routes/negotiationRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/negotiations', negotiationRoutes);
 
 app.get('/health', (_, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
