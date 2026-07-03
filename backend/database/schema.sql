@@ -78,6 +78,18 @@ CREATE TABLE products (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- CART TABLE
+DROP TABLE IF EXISTS cart CASCADE;
+CREATE TABLE cart (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    negotiated_price NUMERIC(12,2),
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, product_id)
+);
+
 -- INDEXES just for performance optimization
 
 CREATE INDEX idx_users_email ON users(email);
@@ -90,3 +102,5 @@ CREATE INDEX idx_products_seller ON products(seller_id);
 CREATE INDEX idx_products_category ON products(category_id);
 CREATE INDEX idx_products_name ON products(product_name);
 CREATE INDEX idx_products_price ON products(price);
+CREATE INDEX idx_cart_user ON cart(user_id);
+CREATE INDEX idx_cart_product ON cart(product_id);
