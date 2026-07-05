@@ -6,6 +6,8 @@ const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const negotiationRoutes = require('./routes/negotiationRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -17,6 +19,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/negotiations', negotiationRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/payment', paymentRoutes);
 
 app.get('/health', (_, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });

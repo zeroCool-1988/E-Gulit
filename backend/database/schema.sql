@@ -108,6 +108,36 @@ CREATE TABLE negotiations (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 
+DROP TABLE IF EXISTS orders CASCADE;
+CREATE TABLE orders (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    order_ref VARCHAR(50) UNIQUE NOT NULL,
+    subtotal NUMERIC(12,2) NOT NULL,
+    commission NUMERIC(12,2) NOT NULL,
+    delivery NUMERIC(12,2) NOT NULL DEFAULT 150,
+    total NUMERIC(12,2) NOT NULL,
+    seller_payout NUMERIC(12,2) NOT NULL,
+    address TEXT NOT NULL,
+    status VARCHAR(30) DEFAULT 'pending' CHECK (status IN ('pending','paid','processing','shipped','delivered','cancelled')),
+    payment_status VARCHAR(20) DEFAULT 'pending' CHECK (payment_status IN ('pending','paid','failed','refunded')),
+    chapa_ref VARCHAR(100),
+    settlement VARCHAR(20) DEFAULT 'pending' CHECK (settlement IN ('pending','processing','completed')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DROP TABLE IF EXISTS order_items CASCADE;
+CREATE TABLE order_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    seller_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    qty INTEGER NOT NULL,
+    price NUMERIC(12,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- INDEXES just for performance optimization
 
 CREATE INDEX idx_users_email ON users(email);
@@ -127,3 +157,8 @@ CREATE INDEX idx_negotiations_buyer ON negotiations(buyer_id);
 CREATE INDEX idx_negotiations_seller ON negotiations(seller_id);
 CREATE INDEX idx_negotiations_product ON negotiations(product_id);
 CREATE INDEX idx_negotiations_status ON negotiations(status);
+
+CREATE INDEX idx_orders_user ON orders(user_id);
+CREATE INDEX idx_orders_ref ON orders(order_ref);
+CREATE INDEX idx_order_items_order ON order_items(order_id);
+CREATE INDEX idx_order_items_seller ON order_items(seller_id);
