@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const log = require('./config/logger');
 const { limiter, authLimiter } = require('./config/rateLimiter');
@@ -15,6 +16,13 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
+  setHeaders: (res, path) => {
+    res.set('Content-Type', 'image/jpeg');
+    res.set('Cache-Control', 'public, max-age=86400');
+  }
+}));
 
 app.use(limiter);
 app.use('/api/auth', authLimiter, authRoutes);

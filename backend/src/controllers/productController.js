@@ -1,15 +1,25 @@
 const Product = require('../models/ProductModel');
 const log = require('../config/logger');
+const path = require('path');
+const { getFileUrl, validateFiles } = require('../config/upload');
 
 const product = {
   async create(req, res) {
-    const { category_id, product_name, description, price, quantity_in_stock, product_condition, is_negotiable, is_featured, images } = req.body;
+    const { category_id, product_name, description, price, quantity_in_stock, product_condition, is_negotiable, is_featured } = req.body;
 
     if (!product_name || !price) {
       return res.status(400).json({ success: false, message: 'Name and price required' });
     }
 
     try {
+      let imageUrls = null;
+      if (req.files && req.files.length > 0) {
+        const { valid } = validateFiles(req);
+        if (valid.length > 0) {
+          imageUrls = valid.map(f => getFileUrl(req, path.basename(f.path)));
+        }
+      }
+
       const product = await Product.create({
         seller_id: req.user.id,
         category_id,
@@ -18,9 +28,9 @@ const product = {
         price,
         quantity_in_stock: quantity_in_stock || 0,
         product_condition: product_condition || 'new',
-        is_negotiable: is_negotiable || false,
-        is_featured: is_featured || false,
-        images: images || null,
+        is_negotiable: is_negotiable === 'true' || is_negotiable === true,
+        is_featured: is_featured === 'true' || is_featured === true,
+        images: imageUrls,
       });
 
       res.status(201).json({ success: true, data: product });
