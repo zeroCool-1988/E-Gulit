@@ -209,7 +209,7 @@ const order = {
                 <p style="font-size: 14px; margin-top: 15px;"><strong>Delivery address:</strong> ${order.address}</p>
               </div>
               <p style="color: #666; font-size: 14px;">Thanks for shopping with us.</p>
-              <p style="color: #999; font-size: 12px;">E-Gulit Bazaar</p>
+              <p style="color: #999; font-size: 12px;">E-Gulit</p>
             </div>
           `;
 
@@ -232,7 +232,7 @@ const order = {
                 <p style="font-size: 14px; margin: 5px 0;"><strong>Status:</strong> ${statusDisplay}</p>
               </div>
               <p style="color: #666; font-size: 14px;">You can manage this order from your seller dashboard.</p>
-              <p style="color: #999; font-size: 12px;">E-Gulit Bazaar</p>
+              <p style="color: #999; font-size: 12px;">E-Gulit</p>
             </div>
           `;
 

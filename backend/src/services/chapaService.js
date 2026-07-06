@@ -19,7 +19,7 @@ const Chapa = {
         callback_url: data.callback_url || 'http://localhost:3000/api/payment/webhook',
         return_url: data.return_url || 'http://localhost:3000/payment/success',
         customization: {
-          title: 'E-Gulit Bazaar',
+          title: 'E-Gulit',
           description: 'Payment for order'
         }
       };
