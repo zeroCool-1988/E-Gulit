@@ -2,11 +2,13 @@ const Order = require('../models/OrderModel');
 const Cart = require('../models/CartModel');
 const Product = require('../models/ProductModel');
 const Chapa = require('../services/chapaService');
+const User = require('../models/UserModel');
+const { sendEmail } = require('../services/emailService');
 const pool = require('../config/database');
 const log = require('../config/logger');
 
-const COMMISSION = 0.08;
-const DELIVERY = 150;
+const COMMISSION = 0.05;
+const DELIVERY = 250;
 
 const order = {
   async checkout(req, res) {
@@ -157,6 +159,93 @@ const order = {
       }
 
       const updated = await Order.updateStatus(id, status);
+
+      try {
+        const buyer = await User.findById(order.user_id);
+        const seller = await User.findById(req.user.id);
+
+        const statusMap = {
+          pending: 'Pending',
+          paid: 'Paid',
+          processing: 'Processing',
+          shipped: 'Shipped',
+          delivered: 'Delivered',
+          cancelled: 'Cancelled'
+        };
+
+        const statusDisplay = statusMap[status] || status;
+
+        if (buyer && buyer.email) {
+          const itemList = items.map(i => 
+            `<tr>
+              <td style="padding: 8px; border-bottom: 1px solid #eee;">${i.qty}x ${i.product_name}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">${i.price} ETB</td>
+            </tr>`
+          ).join('');
+
+          const buyerHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 6px;">
+              <h2 style="color: #333; margin-top: 0;">Order Update</h2>
+              <p>Hi ${buyer.username},</p>
+              <p>Your order <strong>#${order.order_ref}</strong> has been updated to <strong style="color: #2e7d32;">${statusDisplay}</strong>.</p>
+              <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; margin: 20px 0;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                  <thead>
+                    <tr>
+                      <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ddd;">Item</th>
+                      <th style="text-align: right; padding: 8px; border-bottom: 2px solid #ddd;">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${itemList}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td style="padding: 10px 8px; font-weight: bold; border-top: 2px solid #ddd;">Total</td>
+                      <td style="padding: 10px 8px; font-weight: bold; text-align: right; border-top: 2px solid #ddd;">${order.total} ETB</td>
+                    </tr>
+                  </tfoot>
+                </table>
+                <p style="font-size: 14px; margin-top: 15px;"><strong>Delivery address:</strong> ${order.address}</p>
+              </div>
+              <p style="color: #666; font-size: 14px;">Thanks for shopping with us.</p>
+              <p style="color: #999; font-size: 12px;">E-Gulit Bazaar</p>
+            </div>
+          `;
+
+          await sendEmail(
+            buyer.email,
+            `Order ${order.order_ref} status updated to ${statusDisplay}`,
+            buyerHtml
+          );
+        }
+
+        if (seller && seller.email) {
+          const sellerHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 6px;">
+              <h2 style="color: #333; margin-top: 0;">Order Status Update</h2>
+              <p>Hi ${seller.username},</p>
+              <p>Order <strong>#${order.order_ref}</strong> is now <strong style="color: #1565c0;">${statusDisplay}</strong>.</p>
+              <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; margin: 20px 0;">
+                <p style="font-size: 14px; margin: 5px 0;"><strong>Total:</strong> ${order.total} ETB</p>
+                <p style="font-size: 14px; margin: 5px 0;"><strong>Delivery:</strong> ${order.address}</p>
+                <p style="font-size: 14px; margin: 5px 0;"><strong>Status:</strong> ${statusDisplay}</p>
+              </div>
+              <p style="color: #666; font-size: 14px;">You can manage this order from your seller dashboard.</p>
+              <p style="color: #999; font-size: 12px;">E-Gulit Bazaar</p>
+            </div>
+          `;
+
+          await sendEmail(
+            seller.email,
+            `Order ${order.order_ref} status updated to ${statusDisplay}`,
+            sellerHtml
+          );
+        }
+      } catch (emailErr) {
+        log.warn(`Email notification failed: ${emailErr.message}`);
+      }
+
       res.json({ success: true, data: updated });
     } catch (e) {
       log.error(`Update status error: ${e.message}`);

@@ -43,7 +43,7 @@ const payment = {
         }
 
         for (const item of items) {
-          const sellerPayout = item.price * item.qty * 0.92; // 8% commission
+          const sellerPayout = item.price * item.qty * 0.92; // %5 commission
           await pool.query(
             'UPDATE users SET wallet_balance = wallet_balance + $1 WHERE id = $2',
             [sellerPayout, item.seller_id]

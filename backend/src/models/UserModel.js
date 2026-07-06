@@ -177,6 +177,68 @@ const User = {
       throw err;
     }
   },
+  
+  async setVerificationToken(userId, token, expires) {
+    try {
+      const result = await pool.query(
+        'UPDATE users SET verification_token = $1, verification_expires = $2 WHERE id = $3 RETURNING id',
+        [token, expires, userId]
+      );
+      return result.rows[0] || null;
+    } catch (err) {
+      log.error(`setVerificationToken error: ${err.message}`);
+      throw err;
+    }
+  },
+
+  async verifyEmail(token) {
+    try {
+      const result = await pool.query(
+        `UPDATE users 
+         SET is_email_verified = TRUE, 
+             verification_token = NULL, 
+             verification_expires = NULL 
+         WHERE verification_token = $1 AND verification_expires > NOW() 
+         RETURNING id, email`,
+        [token]
+      );
+      return result.rows[0] || null;
+    } catch (err) {
+      log.error(`verifyEmail error: ${err.message}`);
+      throw err;
+    }
+  },
+
+  async setResetToken(userId, token, expires) {
+    try {
+      const result = await pool.query(
+        'UPDATE users SET reset_token = $1, reset_expires = $2 WHERE id = $3 RETURNING id',
+        [token, expires, userId]
+      );
+      return result.rows[0] || null;
+    } catch (err) {
+      log.error(`setResetToken error: ${err.message}`);
+      throw err;
+    }
+  },
+
+  async resetPassword(token, newHash) {
+    try {
+      const result = await pool.query(
+        `UPDATE users 
+         SET password_hash = $1, 
+             reset_token = NULL, 
+             reset_expires = NULL 
+         WHERE reset_token = $2 AND reset_expires > NOW() 
+         RETURNING id, email`,
+        [newHash, token]
+      );
+      return result.rows[0] || null;
+    } catch (err) {
+      log.error(`resetPassword error: ${err.message}`);
+      throw err;
+    }
+  },
 };
 
 module.exports = User;

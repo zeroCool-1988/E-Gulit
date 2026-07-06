@@ -14,7 +14,14 @@ CREATE TABLE users (
     is_verified_seller BOOLEAN DEFAULT FALSE,
     wallet_balance NUMERIC(12,2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_email_verified BOOLEAN DEFAULT FALSE,
+    verification_token VARCHAR(255),
+    verification_expires TIMESTAMP,
+    reset_token VARCHAR(255),
+    reset_expires TIMESTAMP
+);
+
 );
 
 -- SELLER PROFILES TABLE

@@ -2,6 +2,8 @@ const User = require('../models/UserModel');
 const bcrypt = require('../utils/bcryptUtil');
 const jwt = require('../utils/jwtUtil');
 const log = require('../config/logger');
+const { sendEmail } = require('../services/emailService');
+const { generateToken } = require('../utils/tokenUtil');
 
 const auth = {
   async register(req, res) {
@@ -29,6 +31,23 @@ const auth = {
         account_role: role,
         phone_number,
       });
+
+      const token = generateToken();
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      await User.setVerificationToken(user.id, token, expires);
+      const verifyUrl = `${process.env.APP_URL || 'http://localhost:3000'}/api/auth/verify/${token}`;
+      await sendEmail(  email, 
+  'Verify your E-Gulit account', 
+  `
+    <h2>Welcome to E-Gulit!</h2>
+    <p>Please verify your email address by clicking the button below:</p>
+    <a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:4px;">Verify Email</a>
+    <p>Or copy and paste this link into your browser:</p>
+    <p>${verifyUrl}</p>
+    <p>This link expires in 24 hours.</p>
+    <p>If you didn't create an account, you can ignore this email.</p>
+  `
+);
 
       const payload = { id: user.id, username: user.username, role: user.account_role };
       const accessToken = jwt.generateAccessToken(payload);
@@ -153,6 +172,92 @@ const auth = {
       res.json({ success: true, data: { accessToken: newAccessToken } });
     } catch (err) {
       res.status(401).json({ success: false, message: 'Invalid refresh token' });
+    }
+  },
+
+    async verify(req, res) {
+    const { token } = req.params;
+    try {
+      const user = await User.verifyEmail(token);
+      if (!user) {
+        return res.status(400).json({ success: false, message: 'Invalid or expired token' });
+      }
+      res.json({ success: true, message: 'Email verified successfully' });
+    } catch (err) {
+      log.error(`Verify error: ${err.message}`);
+      res.status(500).json({ success: false, message: 'Verification failed' });
+    }
+  },
+
+  async resendVerification(req, res) {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ success: false, message: 'Email required' });
+    try {
+      const user = await User.findByEmail(email);
+      if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+      if (user.is_email_verified) return res.status(400).json({ success: false, message: 'Already verified' });
+
+      const token = generateToken();
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      await User.setVerificationToken(user.id, token, expires);
+      const verifyUrl = `${process.env.APP_URL || 'http://localhost:3000'}/api/auth/verify/${token}`;
+      await sendEmail( email, 
+  'Verify your E-Gulit account', 
+  `
+    <h2>Email Verification</h2>
+    <p>Click the button below to verify your email:</p>
+    <a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:4px;">Verify Email</a>
+    <p>Or copy this link: ${verifyUrl}</p>
+    <p>This link expires in 24 hours.</p>
+  `
+);
+      res.json({ success: true, message: 'Verification email sent' });
+    } catch (err) {
+      log.error(`Resend verification error: ${err.message}`);
+      res.status(500).json({ success: false, message: 'Failed to send' });
+    }
+  },
+
+  async forgotPassword(req, res) {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ success: false, message: 'Email required' });
+    try {
+      const user = await User.findByEmail(email);
+      if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+      const token = generateToken();
+      const expires = new Date(Date.now() + 1 * 60 * 60 * 1000);
+      await User.setResetToken(user.id, token, expires);
+      const resetUrl = `${process.env.APP_URL || 'http://localhost:3000'}/reset-password/${token}`;
+      await sendEmail( email, 
+  'Reset your E-Gulit password', 
+  `
+    <h2>Password Reset Request</h2>
+    <p>You requested to reset your password. Click the button below:</p>
+    <a href="${resetUrl}" style="display:inline-block;padding:12px 24px;background-color:#2196F3;color:white;text-decoration:none;border-radius:4px;">Reset Password</a>
+    <p>Or copy this link: ${resetUrl}</p>
+    <p>This link expires in 1 hour.</p>
+    <p>If you didn't request this, ignore this email.</p>
+  `
+);
+      res.json({ success: true, message: 'Password reset email sent' });
+    } catch (err) {
+      log.error(`Forgot password error: ${err.message}`);
+      res.status(500).json({ success: false, message: 'Failed to send' });
+    }
+  },
+
+  async resetPassword(req, res) {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) return res.status(400).json({ success: false, message: 'Token and new password required' });
+    try {
+      const hashed = await bcrypt.hashPassword(newPassword);
+      const user = await User.resetPassword(token, hashed);
+      if (!user) return res.status(400).json({ success: false, message: 'Invalid or expired token' });
+      res.json({ success: true, message: 'Password reset successfully' });
+    } catch (err) {
+      log.error(`Reset password error: ${err.message}`);
+      res.status(500).json({ success: false, message: 'Reset failed' });
     }
   },
 };
