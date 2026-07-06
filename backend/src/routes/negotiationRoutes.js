@@ -2,15 +2,16 @@ const express = require('express');
 const neg = require('../controllers/negotiationController');
 const auth = require('../middleware/auth');
 const authorize = require('../middleware/authorize');
+const { negotiationValidation, negotiationResponseValidation } = require('../middleware/validation');
 
-const r = express.Router();
+const router = express.Router();
 
-r.use(auth);
+router.use(auth);
 
-r.post('/', authorize('buyer'), neg.create);
-r.get('/seller', authorize('seller'), neg.getForSeller);
-r.get('/buyer', authorize('buyer'), neg.getForBuyer);
-r.get('/:id', neg.getById);
-r.put('/:id/respond', neg.respond);
+router.post('/', authorize('buyer'), negotiationValidation, neg.create);
+router.get('/seller', authorize('seller'), neg.getForSeller);
+router.get('/buyer', authorize('buyer'), neg.getForBuyer);
+router.get('/:id', neg.getById);
+router.put('/:id/respond', negotiationResponseValidation, neg.respond);
 
-module.exports = r;
+module.exports = router;

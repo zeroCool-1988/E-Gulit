@@ -2,14 +2,15 @@ const express = require('express');
 const order = require('../controllers/orderController');
 const auth = require('../middleware/auth');
 const authorize = require('../middleware/authorize');
+const { orderValidation, orderStatusValidation } = require('../middleware/validation');
 
-const r = express.Router();
+const router = express.Router();
 
-r.use(auth);
+router.use(auth);
 
-r.post('/checkout', authorize('buyer'), order.checkout);
-r.get('/', order.getOrders);
-r.get('/:id', order.getOrder);
-r.patch('/:id/status', authorize('seller', 'admin'), order.updateStatus);
+router.post('/checkout', authorize('buyer'), orderValidation, order.checkout);
+router.get('/', order.getOrders);
+router.get('/:id', order.getOrder);
+router.patch('/:id/status', authorize('seller', 'admin'), orderStatusValidation, order.updateStatus);
 
-module.exports = r;
+module.exports = router;
