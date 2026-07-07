@@ -45,7 +45,13 @@ const productValidation = [
 ];
 
 const cartValidation = [
-  body('product_id').isUUID().withMessage('Valid product ID is required'),
+  body('product_id').custom(value => {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(value)) {
+      throw new Error('Valid product ID is required');
+    }
+    return true;
+  }),
   body('quantity').optional().isInt({ min: 1 }).withMessage('Quantity must be at least 1'),
   validate
 ];

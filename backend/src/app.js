@@ -10,6 +10,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const negotiationRoutes = require('./routes/negotiationRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -31,6 +32,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/negotiations', negotiationRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 app.get('/health', (_, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
