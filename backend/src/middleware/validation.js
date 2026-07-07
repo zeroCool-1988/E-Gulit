@@ -12,9 +12,21 @@ const validate = (req, res, next) => {
 };
 
 const registerValidation = [
-  body('username').notEmpty().withMessage('Username is required'),
+  body('username')
+    .trim()
+    .notEmpty().withMessage('Username is required')
+    .isLength({ min: 4 }).withMessage('Username must be more than 3 characters')
+    .matches(/^[A-Za-z._]+$/).withMessage('Username can only contain letters, dots, or underscores'),
+  body('full_name')
+    .trim()
+    .notEmpty().withMessage('Full name is required')
+    .matches(/^[A-Za-z]+(?: [A-Za-z]+)+$/).withMessage('Full name must contain letters and spaces only'),
   body('email').isEmail().withMessage('Valid email is required'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('phone_number')
+    .trim()
+    .notEmpty().withMessage('Phone number is required')
+    .matches(/^\d{10}$/).withMessage('Phone number must be exactly 10 digits'),
+  body('password').isLength({ min: 9 }).withMessage('Password must be more than 8 characters'),
   body('role').isIn(['buyer', 'seller', 'admin']).withMessage('Role must be buyer, seller, or admin'),
   validate
 ];

@@ -5,13 +5,14 @@ TRUNCATE TABLE addresses CASCADE;
 TRUNCATE TABLE seller_profiles CASCADE;
 TRUNCATE TABLE users CASCADE;
 
-INSERT INTO users (id, username, email, password_hash, account_role, phone_number, is_verified_seller, wallet_balance)
+INSERT INTO users (id, username, email, password_hash, full_name, account_role, phone_number, is_verified_seller, wallet_balance)
 VALUES
 (
     '11111111-1111-1111-1111-111111111111',
     'admin',
     'admin@example.com',
     '$2b$12$b.Kbjbo.vwF1gdXpeJcaEObe2QpfVazyZ1NHhYqWPF.R.EgKb9qmG',
+    'Admin User',
     'admin',
     '0911000000',
     TRUE,
@@ -22,6 +23,7 @@ VALUES
     'abebe_seller',
     'abebe@example.com',
     '$2b$12$b.Kbjbo.vwF1gdXpeJcaEObe2QpfVazyZ1NHhYqWPF.R.EgKb9qmG',
+    'Abebe Bekele',
     'seller',
     '0912000001',
     TRUE,
@@ -32,6 +34,7 @@ VALUES
     'hanna_seller',
     'hanna@example.com',
     '$2b$12$b.Kbjbo.vwF1gdXpeJcaEObe2QpfVazyZ1NHhYqWPF.R.EgKb9qmG',
+    'Hanna Mulugeta',
     'seller',
     '0912000002',
     FALSE,
@@ -42,6 +45,7 @@ VALUES
     'dawit_seller',
     'dawit@example.com',
     '$2b$12$b.Kbjbo.vwF1gdXpeJcaEObe2QpfVazyZ1NHhYqWPF.R.EgKb9qmG',
+    'Dawit Alemu',
     'seller',
     '0912000003',
     TRUE,
@@ -52,6 +56,7 @@ VALUES
     'samuel_buyer',
     'samuel@example.com',
     '$2b$12$b.Kbjbo.vwF1gdXpeJcaEObe2QpfVazyZ1NHhYqWPF.R.EgKb9qmG',
+    'Samuel Bekele',
     'buyer',
     '0913000001',
     FALSE,
@@ -62,6 +67,7 @@ VALUES
     'sara_buyer',
     'sara@example.com',
     '$2b$12$b.Kbjbo.vwF1gdXpeJcaEObe2QpfVazyZ1NHhYqWPF.R.EgKb9qmG',
+    'Sara Tadesse',
     'buyer',
     '0913000002',
     FALSE,

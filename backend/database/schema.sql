@@ -9,6 +9,7 @@ CREATE TABLE users (
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(120) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
+    full_name VARCHAR(120),
     account_role VARCHAR(15) DEFAULT 'buyer' CHECK (account_role IN ('buyer', 'seller', 'admin')),
     phone_number VARCHAR(20),
     is_verified_seller BOOLEAN DEFAULT FALSE,
@@ -20,8 +21,6 @@ CREATE TABLE users (
     verification_expires TIMESTAMP,
     reset_token VARCHAR(255),
     reset_expires TIMESTAMP
-);
-
 );
 
 -- SELLER PROFILES TABLE

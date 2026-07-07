@@ -6,6 +6,7 @@ const { registerValidation, loginValidation, emailValidation, resetPasswordValid
 const router = express.Router();
 
 router.post('/register', registerValidation, auth.register);
+router.get('/check-username', auth.checkUsername);
 router.post('/login', loginValidation, auth.login);
 router.post('/refresh', auth.refresh);
 router.get('/profile', authMiddleware, auth.profile);

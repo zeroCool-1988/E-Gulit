@@ -2,10 +2,13 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const log = require('./config/logger');
+const cors = require('cors');
 const { limiter, authLimiter } = require('./config/rateLimiter');
 
 const authRoutes = require('./routes/authRoutes');
+const authController = require('./controllers/authController');
 const productRoutes = require('./routes/productRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const negotiationRoutes = require('./routes/negotiationRoutes');
 const orderRoutes = require('./routes/orderRoutes');
@@ -14,6 +17,11 @@ const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true,
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,9 +33,11 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
   }
 }));
 
+app.get('/api/auth/check-username', authController.checkUsername);
 app.use(limiter);
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/negotiations', negotiationRoutes);
 app.use('/api/orders', orderRoutes);

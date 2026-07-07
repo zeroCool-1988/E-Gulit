@@ -18,11 +18,24 @@ const User = {
     }
   },
 
+  async findByUsername(username) {
+    try {
+      const result = await pool.query(
+        'SELECT id, username FROM users WHERE LOWER(username) = LOWER($1) LIMIT 1',
+        [username]
+      );
+      return result.rows[0] || null;
+    } catch (err) {
+      log.error(`findByUsername error: ${err.message}`);
+      throw err;
+    }
+  },
+
   async findById(id) {
     try {
       const result = await pool.query(
-        `SELECT u.id, u.username, u.email, u.account_role, u.phone_number,
-                u.is_verified_seller, u.wallet_balance, u.created_at,
+        `SELECT u.id, u.username, u.email, u.full_name, u.account_role, u.phone_number,
+                u.is_verified_seller, u.is_email_verified, u.wallet_balance, u.created_at,
                 sp.store_name, sp.stall_location, sp.bio, sp.rating, sp.review_count
          FROM users u
          LEFT JOIN seller_profiles sp ON u.id = sp.user_id
@@ -42,19 +55,28 @@ const User = {
       await client.query('BEGIN');
 
       const result = await client.query(
-        `INSERT INTO users (username, email, password_hash, account_role, phone_number)
-         VALUES ($1, $2, $3, $4, $5)
-         RETURNING id, username, email, account_role, phone_number, is_verified_seller, wallet_balance`,
-        [data.username, data.email, data.password_hash, data.account_role, data.phone_number || null]
+        `INSERT INTO users (username, email, password_hash, full_name, account_role, phone_number)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id, username, email, full_name, account_role, phone_number, is_verified_seller, wallet_balance`,
+        [
+          data.username,
+          data.email,
+          data.password_hash,
+          data.full_name || null,
+          data.account_role,
+          data.phone_number || null,
+        ]
       );
 
       const user = result.rows[0];
 
       if (data.account_role === 'seller') {
+        const firstName = (user.full_name || user.username || '').split(/\s+/)[0] || user.username || 'Seller';
+        const storeName = data.store_name?.trim() || `${firstName}'s Store`;
         await client.query(
-          `INSERT INTO seller_profiles (user_id, store_name)
-           VALUES ($1, $2)`,
-          [user.id, `${user.username}'s Store`]
+          `INSERT INTO seller_profiles (user_id, store_name, stall_location)
+           VALUES ($1, $2, $3)`,
+          [user.id, storeName, data.stall_location || null]
         );
       }
 

@@ -7,9 +7,9 @@ const { generateToken } = require('../utils/tokenUtil');
 
 const auth = {
   async register(req, res) {
-    const { username, email, password, role, phone_number } = req.body;
+    const { username, email, password, role, phone_number, full_name, store_name, stall_location } = req.body;
 
-    if (!username || !email || !password || !role) {
+    if (!username || !email || !password || !role || !full_name) {
       return res.status(400).json({ success: false, message: 'Missing fields' });
     }
 
@@ -18,18 +18,32 @@ const auth = {
     }
 
     try {
-      const existing = await User.findByEmail(email);
-      if (existing) {
+      const normalizedUsername = username.trim();
+      const normalizedFullName = full_name.trim();
+      const normalizedPhone = phone_number?.trim();
+      const firstName = normalizedFullName.split(/\s+/)[0] || normalizedUsername;
+      const defaultStoreName = `${firstName}'s Store`;
+
+      const existingEmail = await User.findByEmail(email);
+      if (existingEmail) {
         return res.status(409).json({ success: false, message: 'Email already exists' });
+      }
+
+      const existingUsername = await User.findByUsername(normalizedUsername);
+      if (existingUsername) {
+        return res.status(409).json({ success: false, message: 'Username already taken' });
       }
 
       const hashed = await bcrypt.hashPassword(password);
       const user = await User.create({
-        username,
+        username: normalizedUsername,
         email,
         password_hash: hashed,
+        full_name: normalizedFullName,
         account_role: role,
-        phone_number,
+        phone_number: normalizedPhone,
+        store_name: role === 'seller' ? store_name?.trim() || defaultStoreName : null,
+        stall_location: role === 'seller' ? stall_location?.trim() || null : null,
       });
 
       const token = generateToken();
@@ -64,7 +78,12 @@ const auth = {
             email: user.email,
             role: user.account_role,
             phone: user.phone_number,
+            full_name: user.full_name,
+            fullName: user.full_name,
+            firstName: user.full_name?.split(/\s+/)[0] || user.username,
             verified: user.is_verified_seller,
+            isEmailVerified: Boolean(user.is_email_verified),
+            emailVerified: Boolean(user.is_email_verified),
             balance: user.wallet_balance,
           },
           accessToken,
@@ -74,6 +93,26 @@ const auth = {
     } catch (err) {
       log.error(`Registration failed: ${err.message}`);
       res.status(500).json({ success: false, message: 'Registration failed' });
+    }
+  },
+
+  async checkUsername(req, res) {
+    const username = req.query.username?.trim();
+
+    if (!username) {
+      return res.status(400).json({ success: false, message: 'Username is required' });
+    }
+
+    if (!/^[A-Za-z._]{4,}$/.test(username)) {
+      return res.json({ success: true, available: false, message: 'Username must be at least 4 characters and contain only letters, dots, or underscores' });
+    }
+
+    try {
+      const existing = await User.findByUsername(username);
+      return res.json({ success: true, available: !existing });
+    } catch (err) {
+      log.error(`Username check error: ${err.message}`);
+      res.status(500).json({ success: false, message: 'Could not check username' });
     }
   },
 
@@ -110,7 +149,12 @@ const auth = {
             email: user.email,
             role: user.account_role,
             phone: user.phone_number,
+            full_name: user.full_name,
+            fullName: user.full_name,
+            firstName: user.full_name?.split(/\s+/)[0] || user.username,
             verified: user.is_verified_seller,
+            isEmailVerified: Boolean(user.is_email_verified),
+            emailVerified: Boolean(user.is_email_verified),
             balance: user.wallet_balance,
             store: user.store_name || null,
           },
@@ -139,7 +183,12 @@ const auth = {
           email: user.email,
           role: user.account_role,
           phone: user.phone_number,
+          full_name: user.full_name,
+          fullName: user.full_name,
+          firstName: user.full_name?.split(/\s+/)[0] || user.username,
           verified: user.is_verified_seller,
+          isEmailVerified: Boolean(user.is_email_verified),
+          emailVerified: Boolean(user.is_email_verified),
           balance: user.wallet_balance,
           store: user.store_name || null,
           rating: user.rating || null,
