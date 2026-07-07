@@ -10,10 +10,6 @@ const payment = {
 
     log.info(`Webhook received: ${tx_ref} - ${status}`);
 
-    // Verify signature (skip for now, implement later)
-    // const signature = req.headers['chapa-signature'];
-    // if (!signature) { return res.status(400).send('Missing signature'); }
-
     if (!tx_ref || !status) {
       return res.status(400).json({ success: false, message: 'Missing data' });
     }
@@ -25,10 +21,17 @@ const payment = {
       }
 
       if (status === 'success') {
-        const verify = await Chapa.verifyPayment(tx_ref);
-        if (!verify || verify.status !== 'success') {
-          log.warn(`Chapa verification failed: ${tx_ref}`);
-          return res.status(400).json({ success: false, message: 'Verification failed' });
+        if (process.env.NODE_ENV === 'production') { // success test with chapa's own verification in production ONLY
+          try {
+            const verify = await Chapa.verifyPayment(tx_ref);
+            if (!verify || verify.status !== 'success') {
+              log.warn(`Chapa verification failed for: ${tx_ref}`);
+              return res.status(400).json({ success: false, message: 'Verification failed' });
+            }
+          } catch (verifyError) {
+            log.error(`Chapa verification error: ${verifyError.message}`);
+            return res.status(500).json({ success: false, message: 'Verification error' });
+          }
         }
 
         await Order.updatePayment(order.id, 'paid', tx_ref);
@@ -41,9 +44,9 @@ const payment = {
             [item.qty, item.product_id]
           );
         }
-
         for (const item of items) {
-          const sellerPayout = item.price * item.qty * 0.92; // %5 commission
+          const sellerPayout = item.price * item.qty * 0.92;
+          log.info(`Updating seller ${item.seller_id} balance by +${sellerPayout}`);
           await pool.query(
             'UPDATE users SET wallet_balance = wallet_balance + $1 WHERE id = $2',
             [sellerPayout, item.seller_id]

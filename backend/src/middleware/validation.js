@@ -44,6 +44,14 @@ const productValidation = [
   validate
 ];
 
+const productUpdateValidation = [
+  body('product_name').optional().notEmpty().withMessage('Product name cannot be empty'),
+  body('price').optional().isFloat({ min: 0.01 }).withMessage('Price must be greater than 0'),
+  body('quantity_in_stock').optional().isInt({ min: 0 }).withMessage('Quantity must be 0 or greater'),
+  body('product_condition').optional().isIn(['new', 'used', 'refurbished']).withMessage('Invalid condition'),
+  validate
+];
+
 const cartValidation = [
   body('product_id').custom(value => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -92,6 +100,7 @@ module.exports = {
   emailValidation,
   resetPasswordValidation,
   productValidation,
+  productUpdateValidation,
   cartValidation,
   cartUpdateValidation,
   orderValidation,

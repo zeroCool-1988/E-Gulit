@@ -70,12 +70,10 @@ const Order = {
   async getItems(orderId) {
     try {
       const r = await pool.query(
-        `SELECT oi.*, p.product_name, p.images,
-                u.username as seller_name
-         FROM order_items oi
-         JOIN products p ON oi.product_id = p.id
-         JOIN users u ON oi.seller_id = u.id
-         WHERE oi.order_id = $1`,
+        `SELECT oi.*, p.product_name, p.seller_id
+        FROM order_items oi
+        JOIN products p ON oi.product_id = p.id
+        WHERE oi.order_id = $1`,
         [orderId]
       );
       return r.rows;
