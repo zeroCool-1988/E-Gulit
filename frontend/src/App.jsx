@@ -7,6 +7,10 @@ import Shop from './pages/Shop.jsx';
 import ProductDetail from './pages/ProductDetail.jsx';
 import VerifyAccount from './pages/VerifyAccount.jsx';
 import { getStoredUser, clearTokens } from './api/apiClient';
+import Cart from './pages/Cart';
+import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import './styles/App.css';
 
 function ShopIcon() {
@@ -41,22 +45,8 @@ function getDisplayName(user) {
   return firstName || user?.username || 'there';
 }
 
-function Navbar() {
-  const [user, setUser] = useState(getStoredUser());
+function Navbar({ user, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    setUser(getStoredUser());
-    setMenuOpen(false);
-  }, [location.pathname]);
-
-  function handleLogout() {
-    clearTokens();
-    setUser(null);
-    navigate('/');
-  }
 
   return (
     <header className="nav">
@@ -70,12 +60,13 @@ function Navbar() {
 
         <nav className={`nav-links ${menuOpen ? 'nav-links-open' : ''}`}>
           <Link to="/shop">Shop</Link>
+          {user && <Link to="/cart">Cart</Link>}
           {user?.role === 'seller' && <Link to="/dashboard">Dashboard</Link>}
           <div className="nav-divider" />
           {user ? (
             <>
               <span className="nav-user">Hello, {getDisplayName(user)}</span>
-              <button className="btn btn-outline nav-btn" onClick={handleLogout}>
+              <button className="btn btn-outline nav-btn" onClick={onLogout}>
                 Log out
               </button>
             </>
@@ -95,7 +86,6 @@ function Navbar() {
           <MenuIcon open={menuOpen} />
         </button>
       </div>
-
     </header>
   );
 }
@@ -127,18 +117,24 @@ function Footer() {
       <div className="container footer-bottom">
         <span>© {new Date().getFullYear()} E-Gulit. Built for the bargain.</span>
       </div>
-
     </footer>
   );
 }
 
 export default function App() {
-  const location = useLocation();
   const [user, setUser] = useState(getStoredUser());
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setUser(getStoredUser());
   }, [location.pathname]);
+
+  function handleLogout() {
+    clearTokens();
+    setUser(null);
+    navigate('/');
+  }
 
   const needsVerification = Boolean(user && !user.isEmailVerified && !user.emailVerified && location.pathname !== '/verify-account');
 
@@ -151,7 +147,7 @@ export default function App() {
           <Link to="/verify-account" className="btn btn-outline verification-banner-action">Verify now</Link>
         </div>
       )}
-      <Navbar />
+      <Navbar user={user} onLogout={handleLogout} />
       <main id="main">
         <Routes>
           <Route path="/" element={<Landing />} />
@@ -160,10 +156,13 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-account" element={<VerifyAccount />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/verify/:token" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Routes>
       </main>
       <Footer />
-
     </div>
   );
 }

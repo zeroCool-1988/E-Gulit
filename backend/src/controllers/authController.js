@@ -49,7 +49,7 @@ const auth = {
       const token = generateToken();
       const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
       await User.setVerificationToken(user.id, token, expires);
-      const verifyUrl = `${process.env.APP_URL || 'http://localhost:3000'}/api/auth/verify/${token}`;
+      const verifyUrl = `${process.env.APP_URL || 'http://localhost:5173'}/verify/${token}`;
       await sendEmail(  email, 
   'Verify your E-Gulit account', 
   `
@@ -249,7 +249,7 @@ const auth = {
       const token = generateToken();
       const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
       await User.setVerificationToken(user.id, token, expires);
-      const verifyUrl = `${process.env.APP_URL || 'http://localhost:3000'}/api/auth/verify/${token}`;
+      const verifyUrl = `${process.env.APP_URL || 'http://localhost:5173'}/verify/${token}`;
       await sendEmail( email, 
   'Verify your E-Gulit account', 
   `
@@ -277,7 +277,7 @@ const auth = {
       const token = generateToken();
       const expires = new Date(Date.now() + 1 * 60 * 60 * 1000);
       await User.setResetToken(user.id, token, expires);
-      const resetUrl = `${process.env.APP_URL || 'http://localhost:3000'}/reset-password/${token}`;
+      const resetUrl = `${process.env.APP_URL || 'http://localhost:5173'}/reset-password/${token}`;
       await sendEmail( email, 
   'Reset your E-Gulit password', 
   `

@@ -171,10 +171,12 @@ export default function Register() {
         stall_location: form.role === 'seller' ? form.location.trim() || undefined : undefined,
       };
 
-      const data = await api.post('/auth/register', payload, { auth: false });
-      setTokens({ accessToken: data.accessToken, refreshToken: data.refreshToken });
-      setStoredUser(data.user);
-      const nextPath = data?.user?.isEmailVerified === false || data?.user?.emailVerified === false ? '/verify-account' : '/shop';
+      const result = await api.post('/auth/register', payload, { auth: false });
+      // ✅ FIX: access nested data
+      const { user, accessToken, refreshToken } = result.data;
+      setTokens({ accessToken, refreshToken });
+      setStoredUser(user);
+      const nextPath = user?.isEmailVerified === false || user?.emailVerified === false ? '/verify-account' : '/shop';
       navigate(nextPath, { replace: true });
     } catch (err) {
       setError(err.message || 'Could not create your account. Please try again.');

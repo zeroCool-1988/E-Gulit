@@ -68,10 +68,12 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const data = await api.post('/auth/login', form, { auth: false });
-      setTokens({ accessToken: data.accessToken, refreshToken: data.refreshToken });
-      setStoredUser(data.user);
-      const redirectTo = location.state?.from?.pathname || '/';
+      const result = await api.post('/auth/login', form, { auth: false });
+      // ✅ FIX: access nested data
+      const { user, accessToken, refreshToken } = result.data;
+      setTokens({ accessToken, refreshToken });
+      setStoredUser(user);
+      const redirectTo = location.state?.from?.pathname || '/shop';
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err.message || 'Could not sign in. Check your details and try again.');
@@ -149,7 +151,6 @@ export default function Login() {
           </p>
         </div>
       </div>
-
     </div>
   );
 }
