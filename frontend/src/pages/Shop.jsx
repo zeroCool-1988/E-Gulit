@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/apiClient';
+import '../styles/Shop.css';
 
 function IconSearch() {
   return (
@@ -106,9 +107,9 @@ function ProductSkeleton() {
     <div className="product-card product-skeleton">
       <div className="product-thumb skeleton-block" />
       <div className="product-body">
-        <div className="skeleton-line" style={{ width: '40%' }} />
-        <div className="skeleton-line" style={{ width: '80%', height: 18 }} />
-        <div className="skeleton-line" style={{ width: '55%' }} />
+        <div className="skeleton-line skeleton-width-40" />
+        <div className="skeleton-line skeleton-width-80 skeleton-height-18" />
+        <div className="skeleton-line skeleton-width-55" />
       </div>
     </div>
   );
@@ -270,178 +271,6 @@ export default function Shop() {
         </section>
       </div>
 
-      <style>{`
-        .shop-page { padding: 44px 24px 90px; }
-        .shop-head {
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          gap: 24px;
-          flex-wrap: wrap;
-          margin-bottom: 8px;
-        }
-        .shop-head h1 { font-size: 2rem; margin-top: 8px; }
-        .search-box {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          background: var(--color-surface);
-          border: 1px solid var(--color-border);
-          border-radius: var(--radius-md);
-          padding: 10px 16px;
-          min-width: 260px;
-          color: var(--color-text-faint);
-        }
-        .search-box input {
-          background: transparent;
-          border: none;
-          width: 100%;
-          font-size: 0.92rem;
-          color: var(--color-text);
-        }
-        .search-box input:focus { outline: none; }
-
-        .shop-error {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-top: 20px;
-        }
-
-        .shop-layout {
-          display: grid;
-          grid-template-columns: 220px 1fr;
-          gap: 36px;
-          margin-top: 32px;
-        }
-
-        .filter-group { margin-bottom: 28px; }
-        .filter-list {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-          margin-top: 12px;
-        }
-        .filter-chip {
-          text-align: left;
-          background: none;
-          border: 1px solid transparent;
-          color: var(--color-text-muted);
-          padding: 7px 10px;
-          border-radius: var(--radius-sm);
-          font-size: 0.88rem;
-          cursor: pointer;
-        }
-        .filter-chip:hover { background: var(--color-surface-hover); }
-        .filter-chip-active {
-          background: rgba(232, 163, 61, 0.1);
-          color: var(--color-accent);
-          font-weight: 600;
-        }
-        .sort-select {
-          width: 100%;
-          margin-top: 12px;
-          background: var(--color-surface);
-          border: 1px solid var(--color-border);
-          border-radius: var(--radius-sm);
-          padding: 9px 10px;
-          font-size: 0.88rem;
-        }
-
-        .product-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 20px;
-          align-content: start;
-        }
-
-        .product-card {
-          background: var(--color-surface);
-          border: 1px solid var(--color-border);
-          border-radius: var(--radius-md);
-          overflow: hidden;
-          transition: border-color 0.15s ease, transform 0.15s ease;
-        }
-        .product-card:hover { border-color: var(--color-border-light); transform: translateY(-2px); }
-
-        .product-thumb {
-          position: relative;
-          height: 150px;
-          background: var(--color-bg-elevated);
-          color: var(--color-text-faint);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 34px;
-        }
-        .product-badge {
-          position: absolute;
-          top: 10px;
-          left: 10px;
-        }
-        .product-body { padding: 16px; }
-        .product-condition {
-          font-family: var(--font-mono);
-          font-size: 0.7rem;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: var(--color-text-faint);
-        }
-        .product-name {
-          font-size: 1.02rem;
-          margin: 6px 0 14px;
-        }
-        .product-foot {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .product-price { font-size: 1.05rem; color: var(--color-accent); }
-        .stock-dot { font-size: 0.75rem; }
-        .stock-in { color: var(--color-success); }
-        .stock-out { color: var(--color-danger); }
-        .product-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          border-radius: 8px;
-        }
-
-        .skeleton-block, .skeleton-line {
-          background: linear-gradient(90deg, var(--color-bg-elevated) 25%, var(--color-surface-hover) 50%, var(--color-bg-elevated) 75%);
-          background-size: 200% 100%;
-          animation: shimmer 1.4s infinite;
-          border-radius: 4px;
-        }
-        .skeleton-line { height: 12px; margin-bottom: 10px; }
-        @keyframes shimmer {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-
-        .empty-state {
-          grid-column: 1 / -1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-          gap: 8px;
-          padding: 60px 20px;
-          color: var(--color-text-faint);
-        }
-        .empty-state h3 { color: var(--color-text); margin-top: 8px; }
-        .empty-state p { max-width: 36ch; margin-bottom: 12px; }
-
-        @media (max-width: 900px) {
-          .shop-layout { grid-template-columns: 1fr; }
-          .filters { display: flex; flex-wrap: wrap; gap: 24px; }
-          .filter-group { margin-bottom: 0; flex: 1 1 200px; }
-          .product-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 560px) {
-          .product-grid { grid-template-columns: 1fr; }
-        }
-      `}</style>
     </div>
   );
 }

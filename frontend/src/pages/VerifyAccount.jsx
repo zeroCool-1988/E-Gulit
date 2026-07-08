@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { api, getStoredUser, setStoredUser } from '../api/apiClient';
+import '../styles/VerifyAccount.css';
 
 function IconMail() {
   return (
@@ -96,36 +97,6 @@ export default function VerifyAccount() {
           </Link>
         </div>
       </div>
-
-      <style>{`
-        .verify-card {
-          max-width: 620px;
-          background: var(--color-surface);
-          border: 1px solid var(--color-border);
-          border-radius: var(--radius-lg);
-          padding: 40px;
-        }
-        .verify-banner {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          background: rgba(232, 163, 61, 0.1);
-          border: 1px solid rgba(232, 163, 61, 0.22);
-          border-radius: var(--radius-md);
-          padding: 16px 18px;
-          margin: 24px 0 28px;
-        }
-        .verify-banner-error {
-          background: rgba(255, 99, 99, 0.1);
-          border-color: rgba(255, 99, 99, 0.22);
-        }
-        .verify-banner strong { display: block; margin-bottom: 4px; }
-        .verify-banner p { margin: 0; color: var(--color-text-muted); }
-        .verify-actions { display: flex; flex-wrap: wrap; gap: 12px; }
-        @media (max-width: 560px) {
-          .verify-card { padding: 26px; }
-        }
-      `}</style>
     </div>
   );
 }

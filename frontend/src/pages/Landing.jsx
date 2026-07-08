@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import '../styles/Landing.css';
 
 function IconTV() {
   return (
@@ -188,124 +189,6 @@ export default function Landing() {
         </div>
       </section>
 
-      <style>{`
-        .section { padding: 64px 24px; }
-        .section-head {
-          display: flex;
-          align-items: baseline;
-          justify-content: space-between;
-          margin-bottom: 28px;
-        }
-        .section-head h2 { font-size: 1.6rem; }
-        .section-link { color: var(--color-secondary); font-size: 0.9rem; font-weight: 600; }
-
-        .hero {
-          padding: 64px 24px 40px;
-          border-bottom: 1px solid var(--color-border);
-        }
-        .hero-grid {
-          display: grid;
-          grid-template-columns: 1.1fr 0.9fr;
-          gap: 56px;
-          align-items: center;
-        }
-        .hero-title {
-          font-size: clamp(2.2rem, 4.4vw, 3.4rem);
-          margin: 14px 0 20px;
-        }
-        .hero-title em {
-          font-style: normal;
-          color: var(--color-accent);
-        }
-        .hero-sub {
-          max-width: 46ch;
-          font-size: 1.05rem;
-        }
-        .hero-actions {
-          display: flex;
-          gap: 14px;
-          margin-top: 30px;
-          flex-wrap: wrap;
-        }
-        .hero-visual {
-          transform: rotate(2deg);
-        }
-
-        .category-grid {
-          display: grid;
-          grid-template-columns: repeat(6, 1fr);
-          gap: 14px;
-        }
-        .category-card {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 10px;
-          padding: 22px 10px;
-          background: var(--color-surface);
-          border: 1px solid var(--color-border);
-          border-radius: var(--radius-md);
-          color: var(--color-text-muted);
-          font-size: 0.85rem;
-          font-weight: 600;
-          text-align: center;
-          transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
-        }
-        .category-card svg { color: var(--color-accent); }
-        .category-card:hover {
-          border-color: var(--color-accent);
-          color: var(--color-text);
-          transform: translateY(-2px);
-        }
-
-        .steps-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
-        }
-        .step-card {
-          background: var(--color-surface);
-          border: 1px solid var(--color-border);
-          border-radius: var(--radius-md);
-          padding: 24px 20px;
-        }
-        .step-n {
-          font-family: var(--font-mono);
-          color: var(--color-accent);
-          font-size: 0.85rem;
-        }
-        .step-card h3 {
-          font-size: 1.05rem;
-          margin: 10px 0 8px;
-        }
-        .step-card p { font-size: 0.9rem; }
-
-        .cta-band {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 24px;
-          flex-wrap: wrap;
-          background: var(--color-surface);
-          border: 1px solid var(--color-border);
-          border-radius: var(--radius-lg);
-          padding: 40px;
-          margin-bottom: 80px;
-        }
-        .cta-band h2 { font-size: 1.5rem; margin-bottom: 8px; }
-        .cta-band p { max-width: 48ch; }
-
-        @media (max-width: 900px) {
-          .hero-grid { grid-template-columns: 1fr; }
-          .hero-visual { max-width: 420px; }
-          .category-grid { grid-template-columns: repeat(3, 1fr); }
-          .steps-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 520px) {
-          .category-grid { grid-template-columns: repeat(2, 1fr); }
-          .steps-grid { grid-template-columns: 1fr; }
-        }
-      `}</style>
     </div>
   );
 }

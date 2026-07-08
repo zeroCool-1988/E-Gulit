@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { api, setTokens, setStoredUser } from '../api/apiClient';
+import '../styles/Login.css';
 
 function IconMail() {
   return (
@@ -149,68 +150,6 @@ export default function Login() {
         </div>
       </div>
 
-      <style>{`
-        .auth-page { padding: 56px 24px 90px; }
-        .auth-grid {
-          display: grid;
-          grid-template-columns: 320px 1fr;
-          gap: 56px;
-          align-items: start;
-          max-width: 880px;
-        }
-        .auth-visual { padding-top: 8px; }
-        .auth-card {
-          background: var(--color-surface);
-          border: 1px solid var(--color-border);
-          border-radius: var(--radius-lg);
-          padding: 40px;
-        }
-        .auth-title { font-size: 1.8rem; margin: 10px 0 6px; }
-        .auth-sub { margin-bottom: 28px; }
-        .input-icon {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          background: var(--color-bg-elevated);
-          border: 1px solid var(--color-border);
-          border-radius: var(--radius-sm);
-          padding: 0 14px;
-        }
-        .input-icon:focus-within { border-color: var(--color-accent); }
-        .input-icon svg { color: var(--color-text-faint); flex-shrink: 0; }
-        .input-icon input {
-          background: transparent;
-          border: none;
-          padding: 12px 0;
-          width: 100%;
-          font-size: 0.95rem;
-        }
-        .input-icon input:focus { outline: none; }
-        .input-icon-btn {
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: var(--color-text-faint);
-          padding: 4px;
-        }
-        .auth-row {
-          display: flex;
-          justify-content: flex-end;
-          margin: -8px 0 20px;
-        }
-        .auth-link { color: var(--color-secondary); font-weight: 600; font-size: 0.87rem; }
-        .auth-footer {
-          margin-top: 24px;
-          text-align: center;
-          font-size: 0.9rem;
-        }
-
-        @media (max-width: 760px) {
-          .auth-grid { grid-template-columns: 1fr; }
-          .auth-visual { max-width: 220px; margin: 0 auto; }
-          .auth-card { padding: 28px; }
-        }
-      `}</style>
     </div>
   );
 }

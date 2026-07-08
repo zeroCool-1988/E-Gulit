@@ -4,8 +4,10 @@ import Landing from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Shop from './pages/Shop.jsx';
+import ProductDetail from './pages/ProductDetail.jsx';
 import VerifyAccount from './pages/VerifyAccount.jsx';
 import { getStoredUser, clearTokens } from './api/apiClient';
+import './styles/App.css';
 
 function ShopIcon() {
   return (
@@ -94,68 +96,6 @@ function Navbar() {
         </button>
       </div>
 
-      <style>{`
-        .nav {
-          position: sticky;
-          top: 0;
-          z-index: 50;
-          background: rgba(28, 21, 18, 0.92);
-          backdrop-filter: blur(8px);
-          border-bottom: 1px solid var(--color-border);
-        }
-        .nav-inner {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          height: 68px;
-        }
-        .nav-logo {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-family: var(--font-display);
-          font-size: 1.3rem;
-          font-weight: 600;
-        }
-        .nav-logo-dot { color: var(--color-accent); }
-        .nav-links {
-          display: flex;
-          align-items: center;
-          gap: 22px;
-          font-size: 0.92rem;
-        }
-        .nav-links a { color: var(--color-text-muted); transition: color 0.15s ease; }
-        .nav-links a:hover { color: var(--color-text); }
-        .nav-link-plain { color: var(--color-text) !important; font-weight: 600; }
-        .nav-divider { width: 1px; height: 20px; background: var(--color-border-light); }
-        .nav-user { color: var(--color-text); font-weight: 600; font-size: 0.9rem; }
-        .nav-btn { padding: 9px 16px; font-size: 0.88rem; }
-        .nav-toggle {
-          display: none;
-          background: none;
-          border: none;
-          color: var(--color-text);
-          cursor: pointer;
-        }
-        @media (max-width: 760px) {
-          .nav-toggle { display: block; }
-          .nav-links {
-            position: absolute;
-            top: 68px;
-            left: 0;
-            right: 0;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 16px;
-            padding: 20px 24px 26px;
-            background: var(--color-bg-elevated);
-            border-bottom: 1px solid var(--color-border);
-            display: none;
-          }
-          .nav-links-open { display: flex; }
-          .nav-divider { display: none; }
-        }
-      `}</style>
     </header>
   );
 }
@@ -165,7 +105,7 @@ function Footer() {
     <footer className="site-footer">
       <div className="container footer-inner">
         <div className="footer-brand">
-          <div className="nav-logo" style={{ fontSize: '1.15rem' }}>
+          <div className="nav-logo footer-logo-text">
             <ShopIcon />
             <span>E-Gulit</span>
           </div>
@@ -188,32 +128,6 @@ function Footer() {
         <span>© {new Date().getFullYear()} E-Gulit. Built for the bargain.</span>
       </div>
 
-      <style>{`
-        .site-footer {
-          border-top: 1px solid var(--color-border);
-          margin-top: 80px;
-          padding-top: 48px;
-          background: var(--color-bg-elevated);
-        }
-        .footer-inner {
-          display: flex;
-          justify-content: space-between;
-          gap: 40px;
-          flex-wrap: wrap;
-          padding-bottom: 36px;
-        }
-        .footer-brand { max-width: 340px; }
-        .footer-brand p { margin-top: 12px; font-size: 0.9rem; }
-        .footer-cols { display: flex; gap: 56px; }
-        .footer-cols a { display: block; color: var(--color-text-muted); font-size: 0.9rem; margin-top: 10px; }
-        .footer-cols a:hover { color: var(--color-text); }
-        .footer-bottom {
-          border-top: 1px solid var(--color-border);
-          padding: 18px 24px;
-          font-size: 0.8rem;
-          color: var(--color-text-faint);
-        }
-      `}</style>
     </footer>
   );
 }
@@ -242,6 +156,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/shop/:id" element={<ProductDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-account" element={<VerifyAccount />} />
@@ -249,23 +164,6 @@ export default function App() {
       </main>
       <Footer />
 
-      <style>{`
-        .verification-banner {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 16px;
-          background: rgba(232, 163, 61, 0.14);
-          border-bottom: 1px solid rgba(232, 163, 61, 0.22);
-          padding: 10px 16px;
-          font-size: 0.92rem;
-          color: var(--color-text);
-        }
-        .verification-banner-action { padding: 7px 12px; font-size: 0.82rem; }
-        @media (max-width: 760px) {
-          .verification-banner { flex-direction: column; text-align: center; }
-        }
-      `}</style>
     </div>
   );
 }
