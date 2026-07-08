@@ -1,0 +1,66 @@
+.payment-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 40px 24px;
+}
+
+.payment-card {
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 48px 40px;
+  max-width: 480px;
+  width: 100%;
+}
+
+.payment-card h1 {
+  font-size: 1.5rem;
+  margin: 16px 0 8px;
+}
+
+.payment-card p {
+  color: var(--color-text-muted);
+}
+
+.payment-card .order-details {
+  text-align: left;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.payment-card .order-details p {
+  margin: 4px 0;
+  color: var(--color-text);
+}
+
+.payment-card .order-details strong {
+  color: var(--color-text);
+}
+
+.payment-card .action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.verify-loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

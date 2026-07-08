@@ -16,8 +16,9 @@ const Chapa = {
         currency: 'ETB',
         email: data.email,
         tx_ref: data.tx_ref,
-        callback_url: data.callback_url || 'http://localhost:3000/api/payment/webhook',
-        return_url: data.return_url || 'http://localhost:3000/payment/success',
+        callback_url: data.callback_url || `${process.env.BACKEND_URL}/api/payment/webhook`,
+        return_url: data.return_url || `${process.env.FRONTEND_URL}/payment/success`,
+        redirect_mode: 'page',
         customization: {
           title: 'E-Gulit',
           description: 'Payment for order'

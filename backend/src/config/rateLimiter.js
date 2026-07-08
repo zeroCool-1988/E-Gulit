@@ -17,4 +17,12 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { limiter, authLimiter };
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { success: false, message: 'Too many refresh attempts. Please log in again.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+module.exports = { limiter, authLimiter, refreshLimiter };

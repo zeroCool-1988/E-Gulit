@@ -1,9 +1,9 @@
 const express = require('express');
 const payment = require('../controllers/paymentController');
 
-const r = express.Router();
+const router = express.Router();
 
-r.post('/webhook', payment.webhook);
-r.get('/callback', payment.callback);
+router.post('/webhook', payment.webhook);
+router.get('/callback', payment.callback);
 
-module.exports = r;
+module.exports = router;

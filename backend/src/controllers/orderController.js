@@ -6,6 +6,8 @@ const User = require('../models/UserModel');
 const { sendEmail } = require('../services/emailService');
 const pool = require('../config/database');
 const log = require('../config/logger');
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
+const frontendUrl = process.env.APP_URL || 'http://localhost:5173';
 
 const COMMISSION = 0.05;
 const DELIVERY = 250;
@@ -65,8 +67,8 @@ const order = {
         amount: total,
         email: req.user.email,
         tx_ref: ref,
-        callback_url: `http://localhost:3000/api/payment/webhook`,
-        return_url: `http://localhost:3000/payment/success`
+        callback_url: `${backendUrl}/api/payment/webhook`,
+        return_url: `${frontendUrl}/payment/success`,
       });
 
       if (!chapa || !chapa.data || !chapa.data.checkout_url) {
@@ -251,7 +253,21 @@ const order = {
       log.error(`Update status error: ${e.message}`);
       res.status(500).json({ success: false, message: 'Failed to update status' });
     }
+  },
+  async getByRef(req, res) {
+  const { tx_ref } = req.params;
+  try {
+    const order = await Order.findByRef(tx_ref);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    order.items = await Order.getItems(order.id);
+    res.json({ success: true, data: order });
+  } catch (e) {
+    log.error(`Get order by ref error: ${e.message}`);
+    res.status(500).json({ success: false, message: 'Failed to get order' });
   }
+}
 };
 
 module.exports = order;

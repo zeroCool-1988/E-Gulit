@@ -12,5 +12,6 @@ router.post('/checkout', authorize('buyer'), orderValidation, order.checkout);
 router.get('/', order.getOrders);
 router.get('/:id', order.getOrder);
 router.patch('/:id/status', authorize('seller', 'admin'), orderStatusValidation, order.updateStatus);
+router.get('/ref/:tx_ref', order.getByRef);
 
 module.exports = router;

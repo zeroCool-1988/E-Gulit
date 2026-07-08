@@ -3,7 +3,7 @@ const path = require('path');
 const express = require('express');
 const log = require('./config/logger');
 const cors = require('cors');
-const { limiter, authLimiter } = require('./config/rateLimiter');
+const { limiter, authLimiter, refreshLimiter } = require('./config/rateLimiter');
 
 const authRoutes = require('./routes/authRoutes');
 const authController = require('./controllers/authController');
@@ -25,6 +25,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(limiter);
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
   setHeaders: (res, path) => {
@@ -34,8 +35,8 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
 }));
 
 app.get('/api/auth/check-username', authController.checkUsername);
-app.use(limiter);
-app.use('/api/auth', authLimiter, authRoutes);
+app.post('/api/auth/refresh', refreshLimiter, authController.refresh);
+app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
