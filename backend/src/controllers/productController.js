@@ -41,7 +41,7 @@ const product = {
   },
 
   async findAll(req, res) {
-    const { search, category_id, min_price, max_price, is_negotiable, limit, page } = req.query;
+    const { search, category_id, min_price, max_price, is_negotiable, seller_id, limit, page } = req.query;
 
     const filters = {
       search: search || null,
@@ -49,6 +49,7 @@ const product = {
       min_price: min_price || null,
       max_price: max_price || null,
       is_negotiable: is_negotiable !== undefined ? is_negotiable === 'true' : undefined,
+      seller_id: seller_id || null,
       limit: parseInt(limit) || 50,
       offset: (parseInt(page) - 1) * parseInt(limit) || 0,
     };

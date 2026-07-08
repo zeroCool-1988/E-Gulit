@@ -36,7 +36,22 @@ const payment = {
       }
 
       if (status === 'success') {
-        await Order.updatePayment(order.id, 'paid', tx_ref);
+        let verifyResult;
+        try {
+          verifyResult = await Chapa.verifyPayment(tx_ref);
+        } catch (verifyErr) {
+          log.error(`Chapa verification error: ${verifyErr.message}`);
+          return res.status(400).json({ success: false, message: 'Verification failed' });
+        }
+
+        if (!verifyResult || verifyResult.status !== 'success') {
+          log.warn(`Chapa verification failed for: ${tx_ref}`);
+          return res.status(400).json({ success: false, message: 'Verification failed' });
+        }
+
+        const chapaReference = verifyResult.data?.reference;
+
+        await Order.updatePayment(order.id, 'paid', chapaReference || tx_ref);
         await Order.updateStatus(order.id, 'paid');
 
         const items = await Order.getItems(order.id);
@@ -48,7 +63,8 @@ const payment = {
         }
 
         for (const item of items) {
-          const sellerPayout = item.price * item.qty * 0.92;
+          const sellerPayout = item.price * item.qty * 0.92; // 8% commission
+          log.info(`Updating seller ${item.seller_id} balance by +${sellerPayout}`);
           await pool.query(
             'UPDATE users SET wallet_balance = wallet_balance + $1 WHERE id = $2',
             [sellerPayout, item.seller_id]
@@ -92,7 +108,7 @@ const payment = {
                     <p style="font-size: 14px; margin-top: 15px;"><strong>Delivery address:</strong> ${order.address}</p>
                   </div>
                   <p style="color: #666; font-size: 14px;">Your order is now being processed.</p>
-                  <p style="color: #999; font-size: 12px;">E-Gulit Bazaar</p>
+                  <p style="color: #999; font-size: 12px;">E-Gulit</p>
                 </div>
               `
             );
@@ -102,7 +118,7 @@ const payment = {
           log.warn(`Payment email failed: ${emailErr.message}`);
         }
 
-        log.info(`Payment success: ${tx_ref}`);
+        log.info(`Payment success: ${tx_ref}, Chapa ref: ${chapaReference}`);
         res.json({ success: true, message: 'Payment confirmed' });
       } else {
         await Order.updatePayment(order.id, 'failed', tx_ref);
@@ -120,7 +136,7 @@ const payment = {
     log.info(`Callback: ${tx_ref} - ${status}`);
     const frontendUrl = process.env.APP_URL || 'http://localhost:5173';
     if (status === 'success') {
-      res.redirect(`${frontendUrl}/payment/success`);
+      res.redirect(`${frontendUrl}/payment/success?ref=${tx_ref}`);
     } else {
       res.redirect(`${frontendUrl}/payment/cancel`);
     }

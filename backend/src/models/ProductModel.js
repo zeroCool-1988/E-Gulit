@@ -25,11 +25,11 @@ const Product = {
   async findAll(filters = {}) {
     let query = `SELECT p.*, u.username as seller_name, u.is_verified_seller,
                         c.category_name, sp.store_name
-                 FROM products p
-                 LEFT JOIN users u ON p.seller_id = u.id
-                 LEFT JOIN categories c ON p.category_id = c.id
-                 LEFT JOIN seller_profiles sp ON u.id = sp.user_id
-                 WHERE 1=1`;
+                FROM products p
+                LEFT JOIN users u ON p.seller_id = u.id
+                LEFT JOIN categories c ON p.category_id = c.id
+                LEFT JOIN seller_profiles sp ON u.id = sp.user_id
+                WHERE 1=1`;
     const values = [];
     let idx = 1;
 
@@ -62,7 +62,11 @@ const Product = {
       values.push(filters.is_negotiable);
       idx++;
     }
-
+    if (filters.seller_id) {
+      query += ` AND p.seller_id = $${idx}`;
+      values.push(filters.seller_id);
+      idx++;
+    }
     query += ` ORDER BY p.created_at DESC`;
 
     if (filters.limit) {

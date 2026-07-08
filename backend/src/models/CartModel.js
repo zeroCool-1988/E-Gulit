@@ -3,21 +3,23 @@ const log = require('../config/logger');
 
 const Cart = {
   async get(userId) {
-    const q = `SELECT c.id, c.product_id, c.quantity, c.negotiated_price,
-              p.product_name, p.price, p.images, p.seller_id,
-              u.username as seller_name, sp.store_name
-              FROM cart c
-              JOIN products p ON c.product_id = p.id
-              LEFT JOIN users u ON p.seller_id = u.id
-              LEFT JOIN seller_profiles sp ON u.id = sp.user_id
-              WHERE c.user_id = $1
-              ORDER BY c.added_at DESC`;
     try {
-      const r = await pool.query(q, [userId]);
-      return r.rows;
-    } catch (e) {
-      log.error(`cart get: ${e.message}`);
-      throw e;
+      const result = await pool.query(
+        `SELECT c.id, c.product_id, c.quantity, c.negotiated_price,
+                p.product_name, p.price, p.images, p.seller_id,  -- 👈 added p.seller_id
+                u.username as seller_name, sp.store_name
+        FROM cart c
+        JOIN products p ON c.product_id = p.id
+        LEFT JOIN users u ON p.seller_id = u.id
+        LEFT JOIN seller_profiles sp ON u.id = sp.user_id
+        WHERE c.user_id = $1
+        ORDER BY c.added_at DESC`,
+        [userId]
+      );
+      return result.rows;
+    } catch (err) {
+      log.error(`getCart error: ${err.message}`);
+      throw err;
     }
   },
 

@@ -16,6 +16,8 @@ import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentCancel from './pages/PaymentCancel';
 import Orders from './pages/Orders'
 import OrderDetail from './pages/OrderDetail';
+import SellerDashboard from './pages/seller/SellerDashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 import './styles/App.css';
 
 function ShopIcon() {
@@ -171,6 +173,7 @@ export default function App() {
           <Route path="/payment/cancel" element={<PaymentCancel />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:id" element={<OrderDetail />} />
+          <Route path="/dashboard" element={ <ProtectedRoute roles={['seller']}> <SellerDashboard /> </ProtectedRoute> }/>
         </Routes>
       </main>
       <Footer />

@@ -9,10 +9,11 @@ const router = express.Router();
 router.get('/ref/:tx_ref', order.getByRef);
 router.use(auth);
 
-router.post('/checkout', authorize('buyer'), orderValidation, order.checkout);
+router.post('/checkout', orderValidation, order.checkout);
 router.get('/', order.getOrders);
 router.get('/:id', order.getOrder);
 router.patch('/:id/status', authorize('seller', 'admin'), orderStatusValidation, order.updateStatus);
 router.post('/:id/pay', auth, authorize('buyer'), order.payOrder);
+router.post('/:id/confirm-delivery', auth, authorize('buyer'), order.confirmDelivery);
 
 module.exports = router;

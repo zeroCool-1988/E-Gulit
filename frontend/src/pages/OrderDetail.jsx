@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { api } from '../api/apiClient';
+import { api, getStoredUser } from '../api/apiClient';
 import '../styles/OrderDetail.css';
 
 function IconArrowLeft() {
@@ -41,6 +41,9 @@ export default function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [paying, setPaying] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const user = getStoredUser();
 
   useEffect(() => {
     fetchOrder();
@@ -62,24 +65,60 @@ export default function OrderDetail() {
   async function handlePayNow() {
     setPaying(true);
     try {
-        const token = localStorage.getItem('egulit_access_token');
-        const res = await fetch(`http://localhost:3000/api/orders/${id}/pay`, {
+      const token = localStorage.getItem('egulit_access_token');
+      const res = await fetch(`http://localhost:3000/api/orders/${id}/pay`, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        });
-        const data = await res.json();
-        if (data.success && data.data?.payment_url) {
+      });
+      const data = await res.json();
+      if (data.success && data.data?.payment_url) {
         window.location.href = data.data.payment_url;
-        } else {
+      } else {
         alert('Could not initiate payment.');
         setPaying(false);
-        }
+      }
     } catch (err) {
-        alert(err.message || 'Payment initiation failed.');
-        setPaying(false);
+      alert(err.message || 'Payment initiation failed.');
+      setPaying(false);
+    }
+  }
+
+  async function handleConfirmDelivery() {
+    if (!confirm('Have you received this order? This action cannot be undone.')) return;
+    setConfirming(true);
+    try {
+      const result = await api.post(`/orders/${id}/confirm-delivery`);
+      if (result.success) {
+        alert('Delivery confirmed! Thank you for shopping with E-Gulit.');
+        fetchOrder();
+      } else {
+        alert(result.message || 'Could not confirm delivery.');
+      }
+    } catch (err) {
+      alert(err.message || 'Could not confirm delivery.');
+    } finally {
+      setConfirming(false);
+    }
+  }
+
+  async function updateStatus(newStatus) {
+    if (!confirm(`Mark this order as "${newStatus}"?`)) return;
+    setUpdating(true);
+    try {
+      const result = await api.patch(`/orders/${id}/status`, { status: newStatus });
+      if (result.success) {
+        alert(`Order status updated to ${newStatus}.`);
+        fetchOrder();
+      } else {
+        alert(result.message || 'Could not update status.');
+      }
+    } catch (err) {
+      alert(err.message || 'Could not update status.');
+    } finally {
+      setUpdating(false);
     }
   }
 
@@ -104,6 +143,9 @@ export default function OrderDetail() {
       </div>
     );
   }
+
+  const isBuyer = user?.id === order.user_id;
+  const isSeller = user?.role === 'seller' && order.items?.some(i => i.seller_id === user.id);
 
   return (
     <div className="container order-detail-page">
@@ -135,7 +177,7 @@ export default function OrderDetail() {
             <span>{order.address}</span>
           </div>
 
-          {order.status === 'pending' && (
+          {isBuyer && order.status === 'pending' && (
             <div className="order-action-row">
               <button
                 className="btn btn-primary btn-block"
@@ -143,6 +185,41 @@ export default function OrderDetail() {
                 disabled={paying}
               >
                 {paying ? 'Processing…' : 'Pay Now'}
+              </button>
+            </div>
+          )}
+
+          {isBuyer && order.status === 'shipped' && (
+            <div className="order-action-row">
+              <button
+                className="btn btn-success btn-block"
+                onClick={handleConfirmDelivery}
+                disabled={confirming}
+              >
+                {confirming ? 'Confirming…' : 'Confirm Delivery'}
+              </button>
+            </div>
+          )}
+
+          {isSeller && order.status === 'paid' && (
+            <div className="order-action-row">
+              <button
+                className="btn btn-primary btn-block"
+                onClick={() => updateStatus('processing')}
+                disabled={updating}
+              >
+                Mark as Processing
+              </button>
+            </div>
+          )}
+          {isSeller && order.status === 'processing' && (
+            <div className="order-action-row">
+              <button
+                className="btn btn-primary btn-block"
+                onClick={() => updateStatus('shipped')}
+                disabled={updating}
+              >
+                Mark as Shipped
               </button>
             </div>
           )}

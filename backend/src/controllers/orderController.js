@@ -93,11 +93,17 @@ const order = {
 
   async getOrders(req, res) {
     try {
+      const { filter } = req.query;
       let orders;
+
       if (req.user.role === 'admin') {
         orders = await Order.getAll();
       } else if (req.user.role === 'seller') {
-        orders = await Order.getForSeller(req.user.id);
+        if (filter === 'purchases') {
+          orders = await Order.getForUser(req.user.id);
+        } else {
+          orders = await Order.getForSeller(req.user.id);
+        }
       } else {
         orders = await Order.getForUser(req.user.id);
       }
@@ -254,6 +260,63 @@ const order = {
       res.status(500).json({ success: false, message: 'Failed to update status' });
     }
   },
+
+  async confirmDelivery(req, res) {
+    const { id } = req.params;
+
+    try {
+      const order = await Order.findById(id);
+      if (!order) {
+        return res.status(404).json({ success: false, message: 'Order not found' });
+      }
+
+      if (order.user_id !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Access denied' });
+      }
+
+      if (order.status !== 'shipped') {
+        return res.status(400).json({
+          success: false,
+          message: 'Order must be shipped before confirming delivery'
+        });
+      }
+
+      const updated = await Order.updateStatus(order.id, 'delivered');
+
+      try {
+        const buyer = await User.findById(order.user_id);
+        const items = await Order.getItems(order.id);
+        const sellerIds = [...new Set(items.map(i => i.seller_id))];
+        const sellers = await Promise.all(sellerIds.map(id => User.findById(id)));
+
+        if (buyer && buyer.email) {
+          await sendEmail(
+            buyer.email,
+            `Order ${order.order_ref} delivered`,
+            `<p>You have confirmed delivery for order <strong>#${order.order_ref}</strong>. Thank you for shopping with E-Gulit!</p>`
+          );
+        }
+
+        for (const seller of sellers) {
+          if (seller && seller.email) {
+            await sendEmail(
+              seller.email,
+              `Order ${order.order_ref} delivered`,
+              `<p>Buyer has confirmed delivery for order <strong>#${order.order_ref}</strong>.</p>`
+            );
+          }
+        }
+      } catch (emailErr) {
+        log.warn(`Delivery confirmation email failed: ${emailErr.message}`);
+      }
+
+      res.json({ success: true, data: updated });
+    } catch (e) {
+      log.error(`Confirm delivery error: ${e.message}`);
+      res.status(500).json({ success: false, message: 'Failed to confirm delivery' });
+    }
+  },
+
   async getByRef(req, res) {
     const { tx_ref } = req.params;
     try {

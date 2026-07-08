@@ -99,19 +99,16 @@ const negotiation = {
       return res.status(404).json({ success: false, message: 'Negotiation not found' });
     }
 
-    // Check if user is involved
     if (neg.buyer_id !== req.user.id && neg.seller_id !== req.user.id) {
       return res.status(403).json({ success: false, message: 'Access denied' });
     }
 
-    // Only seller can counter or reject
     if (action === 'counter' || action === 'reject') {
       if (neg.seller_id !== req.user.id) {
         return res.status(403).json({ success: false, message: 'Only seller can counter or reject' });
       }
     }
 
-    // Buyer or seller can accept
     if (action === 'accept') {
       // Both can accept
     }
@@ -135,7 +132,6 @@ const negotiation = {
       
       result = await Negotiation.accept(id);
       
-      // Add to cart with negotiated price
       const cartCheck = await pool.query(
         'SELECT id FROM cart WHERE user_id = $1 AND product_id = $2',
         [neg.buyer_id, neg.product_id]

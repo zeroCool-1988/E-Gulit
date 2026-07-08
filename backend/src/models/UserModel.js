@@ -149,6 +149,7 @@ const User = {
         'UPDATE users SET wallet_balance = wallet_balance + $1 WHERE id = $2 RETURNING wallet_balance',
         [amount, userId]
       );
+      log.info(`Balance updated for user ${userId}: +${amount}`);
       return result.rows[0].wallet_balance;
     } catch (err) {
       log.error(`updateBalance error: ${err.message}`);

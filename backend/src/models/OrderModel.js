@@ -103,17 +103,17 @@ const Order = {
   async getForSeller(sellerId) {
     try {
       const r = await pool.query(
-        `SELECT DISTINCT o.*, 
-                (SELECT COUNT(*) FROM order_items WHERE order_id = o.id AND seller_id = $1) as my_items
-         FROM orders o
-         JOIN order_items oi ON o.id = oi.order_id
-         WHERE oi.seller_id = $1
-         ORDER BY o.created_at DESC`,
+        `SELECT DISTINCT o.*,
+          (SELECT COUNT(*) FROM order_items WHERE order_id = o.id AND seller_id = $1) as my_items
+        FROM orders o
+        JOIN order_items oi ON o.id = oi.order_id
+        WHERE oi.seller_id = $1
+        ORDER BY o.created_at DESC`,
         [sellerId]
       );
       return r.rows;
     } catch (e) {
-      log.error(`Order getForSeller: ${e.message}`);
+      log.error(`Order getForSeller error: ${e.message}`);
       throw e;
     }
   },

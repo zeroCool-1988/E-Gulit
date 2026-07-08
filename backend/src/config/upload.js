@@ -72,29 +72,23 @@ const getFileUrl = (req, filename) => {
   return `${baseUrl}/uploads/${filename}`;
 };
 
-// Validate files after they're saved
 const validateFiles = (req) => {
   const files = req.files || [];
   const valid = [];
   const invalid = [];
 
   for (const file of files) {
-    // Check if file exists
     if (!file.path || !fs.existsSync(file.path)) {
       log.warn(`File not found: ${file.originalname}`);
       invalid.push(file);
       continue;
     }
-
-    // Read first few bytes to check magic
     try {
       const fd = fs.openSync(file.path, 'r');
       const buffer = Buffer.alloc(12);
       fs.readSync(fd, buffer, 0, 12, 0);
       fs.closeSync(fd);
 
-      // Check if it's a valid image (simplistic check)
-      // PNG: 89 50 4E 47, JPEG: FF D8 FF, GIF: 47 49 46, WebP: 52 49 46 46
       const hex = buffer.toString('hex');
       const isImage = (
         hex.startsWith('89504e47') || // PNG

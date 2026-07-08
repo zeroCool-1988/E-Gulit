@@ -19,21 +19,32 @@ const cart = {
 
   async add(req, res) {
     const { product_id, quantity } = req.body;
+
     if (!product_id) {
       return res.status(400).json({ success: false, message: 'Product ID required' });
     }
+
     try {
-      const p = await Product.findById(product_id);
-      if (!p) {
+      const product = await Product.findById(product_id);
+      if (!product) {
         return res.status(404).json({ success: false, message: 'Product not found' });
       }
-      if (p.quantity_in_stock <= 0) {
+
+      if (product.seller_id === req.user.id) {
+        return res.status(400).json({
+          success: false,
+          message: 'You cannot buy your own product.'
+        });
+      }
+
+      if (product.quantity_in_stock <= 0) {
         return res.status(400).json({ success: false, message: 'Out of stock' });
       }
+
       const item = await Cart.add(req.user.id, product_id, quantity || 1);
       res.status(201).json({ success: true, data: item });
     } catch (e) {
-      log.error(`cart add: ${e.message}`);
+      log.error(`Cart add error: ${e.message}`);
       res.status(500).json({ success: false, message: 'Failed to add to cart' });
     }
   },

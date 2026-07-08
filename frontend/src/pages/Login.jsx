@@ -51,6 +51,10 @@ function IconTicketStub() {
   );
 }
 
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -66,10 +70,15 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+
+    if (!isValidEmail(form.email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
     setLoading(true);
     try {
       const result = await api.post('/auth/login', form, { auth: false });
-      // ✅ FIX: access nested data
       const { user, accessToken, refreshToken } = result.data;
       setTokens({ accessToken, refreshToken });
       setStoredUser(user);

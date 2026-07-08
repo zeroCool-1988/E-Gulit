@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../api/apiClient';
+import { api, getStoredUser } from '../api/apiClient';
 import '../styles/Orders.css';
 
 function formatBirr(amount) {
@@ -49,9 +49,15 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filter, setFilter] = useState('incoming');
 
-  useEffect(() => {
-    api.get('/orders')
+  const user = getStoredUser();
+  const isSeller = user?.role === 'seller';
+
+  function fetchOrders(filterType) {
+    setLoading(true);
+    const query = isSeller ? `?filter=${filterType}` : '';
+    api.get(`/orders${query}`)
       .then((data) => {
         setOrders(data.data || []);
         setLoading(false);
@@ -60,7 +66,11 @@ export default function Orders() {
         setError(err.message || 'Could not load orders.');
         setLoading(false);
       });
-  }, []);
+  }
+
+  useEffect(() => {
+    fetchOrders(filter);
+  }, [filter]);
 
   if (loading) {
     return (
@@ -85,59 +95,72 @@ export default function Orders() {
     );
   }
 
-  if (orders.length === 0) {
-    return (
-      <div className="container orders-page">
+  return (
+    <div className="container orders-page">
+      <div className="orders-header">
         <h1>My Orders</h1>
+        {isSeller && (
+          <div className="orders-toggle">
+            <button
+              className={`toggle-btn ${filter === 'incoming' ? 'active' : ''}`}
+              onClick={() => setFilter('incoming')}
+            >
+              Incoming Orders
+            </button>
+            <button
+              className={`toggle-btn ${filter === 'purchases' ? 'active' : ''}`}
+              onClick={() => setFilter('purchases')}
+            >
+              My Purchases
+            </button>
+          </div>
+        )}
+      </div>
+      <p className="orders-count">{orders.length} order{orders.length > 1 ? 's' : ''}</p>
+
+      {orders.length === 0 ? (
         <div className="empty-orders">
           <IconAlert />
           <h2>No orders yet</h2>
           <p>Start shopping and place your first order.</p>
           <Link to="/shop" className="btn btn-primary">Browse Products</Link>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container orders-page">
-      <h1>My Orders</h1>
-      <p className="orders-count">{orders.length} order{orders.length > 1 ? 's' : ''}</p>
-
-      <div className="orders-list">
-        {orders.map((order) => (
-          <Link to={`/orders/${order.id}`} key={order.id} className="order-card">
-            <div className="order-header">
-              <div className="order-ref">
-                <IconBox />
-                <span>{order.order_ref}</span>
+      ) : (
+        <div className="orders-list">
+          {orders.map((order) => (
+            <Link to={`/orders/${order.id}`} key={order.id} className="order-card">
+              <div className="order-header">
+                <div className="order-ref">
+                  <IconBox />
+                  <span>{order.order_ref}</span>
+                </div>
+                <span className="order-date">{formatDate(order.created_at)}</span>
               </div>
-              <span className="order-date">{formatDate(order.created_at)}</span>
-            </div>
-            <div className="order-body">
-              <div className="order-items">
-                {order.items?.slice(0, 3).map((item) => (
-                  <span key={item.id} className="order-item-name">
-                    {item.qty}x {item.product_name}
+              <div className="order-body">
+                <div className="order-items">
+                  {order.items?.slice(0, 3).map((item) => (
+                    <span key={item.id} className="order-item-name">
+                      {item.qty}x {item.product_name}
+                    </span>
+                  ))}
+                  {order.items?.length > 3 && (
+                    <span className="order-item-more">+{order.items.length - 3} more</span>
+                  )}
+                </div>
+                <div className="order-footer">
+                  <span className="order-total">{formatBirr(order.total)}</span>
+                  <span
+                    className="order-status"
+                    style={{ backgroundColor: getStatusColor(order.status) }}
+                  >
+                    {order.status}
                   </span>
-                ))}
-                {order.items?.length > 3 && (
-                  <span className="order-item-more">+{order.items.length - 3} more</span>
-                )}
+                </div>
               </div>
-              <div className="order-footer">
-                <span className="order-total">{formatBirr(order.total)}</span>
-                <span
-                  className="order-status"
-                  style={{ backgroundColor: getStatusColor(order.status) }}
-                >
-                  {order.status}
-                </span>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
