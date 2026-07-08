@@ -206,7 +206,6 @@
   text-align: right;
 }
 
-/* Summary — styled like the torn bargain-ticket receipt used elsewhere */
 .cart-summary {
   position: sticky;
   top: 90px;

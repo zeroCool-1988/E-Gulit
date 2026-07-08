@@ -68,7 +68,7 @@ const order = {
         email: req.user.email,
         tx_ref: ref,
         callback_url: `${backendUrl}/api/payment/webhook`,
-        return_url: `${frontendUrl}/payment/success`,
+        return_url: `${frontendUrl}/payment/success?ref=${ref}`,
       });
 
       if (!chapa || !chapa.data || !chapa.data.checkout_url) {
@@ -255,19 +255,68 @@ const order = {
     }
   },
   async getByRef(req, res) {
-  const { tx_ref } = req.params;
-  try {
-    const order = await Order.findByRef(tx_ref);
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+    const { tx_ref } = req.params;
+    try {
+      let order = await Order.findByChapaRef(tx_ref);
+      if (!order) {
+        order = await Order.findByRef(tx_ref);
+      }
+      if (!order) {
+        return res.status(404).json({ success: false, message: 'Order not found' });
+      }
+      order.items = await Order.getItems(order.id);
+      res.json({ success: true, data: order });
+    } catch (e) {
+      log.error(`Get order by ref error: ${e.message}`);
+      res.status(500).json({ success: false, message: 'Failed to get order' });
     }
-    order.items = await Order.getItems(order.id);
-    res.json({ success: true, data: order });
-  } catch (e) {
-    log.error(`Get order by ref error: ${e.message}`);
-    res.status(500).json({ success: false, message: 'Failed to get order' });
+  },
+
+  async payOrder(req, res) {
+    const { id } = req.params;
+
+    try {
+      const order = await Order.findById(id);
+      if (!order) {
+        return res.status(404).json({ success: false, message: 'Order not found' });
+      }
+
+      if (order.status !== 'pending') {
+        return res.status(400).json({ success: false, message: 'Order is already paid or processed.' });
+      }
+
+      const user = await User.findById(order.user_id);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      const ref = `EG-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      await Order.updateChapaRef(order.id, ref);
+
+      const chapa = await Chapa.initPayment({
+        amount: order.total,
+        email: user.email,
+        tx_ref: ref,
+        callback_url: `${backendUrl}/api/payment/webhook`,
+        return_url: `${frontendUrl}/payment/success?ref=${ref}`,
+      });
+
+      if (!chapa || !chapa.data || !chapa.data.checkout_url) {
+        return res.status(500).json({ success: false, message: 'Payment initiation failed' });
+      }
+
+      res.json({
+        success: true,
+        data: {
+          payment_url: chapa.data.checkout_url,
+          tx_ref: ref,
+        },
+      });
+    } catch (e) {
+      log.error(`Pay order error: ${e.message}`);
+      res.status(500).json({ success: false, message: 'Failed to initiate payment' });
+    }
   }
-}
 };
 
 module.exports = order;

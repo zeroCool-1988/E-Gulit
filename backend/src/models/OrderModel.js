@@ -171,6 +171,32 @@ const Order = {
       log.error(`Order updateSettlement: ${e.message}`);
       throw e;
     }
+  },
+
+  async updateChapaRef(id, ref) {
+    try {
+      const r = await pool.query(
+        'UPDATE orders SET chapa_ref = $1 WHERE id = $2 RETURNING *',
+        [ref, id]
+      );
+      return r.rows[0] || null;
+    } catch (e) {
+      log.error(`updateChapaRef error: ${e.message}`);
+      throw e;
+    }
+  },
+
+  async findByChapaRef(ref) {
+    try {
+      const r = await pool.query(
+        'SELECT * FROM orders WHERE chapa_ref = $1',
+        [ref]
+      );
+      return r.rows[0] || null;
+    } catch (e) {
+      log.error(`findByChapaRef error: ${e.message}`);
+      throw e;
+    }
   }
 };
 

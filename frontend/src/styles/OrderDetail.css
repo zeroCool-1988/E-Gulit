@@ -1,0 +1,126 @@
+.order-detail-page {
+  padding: 40px 24px 90px;
+}
+
+.order-detail-page .back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-secondary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+.order-detail-page .back-link:hover {
+  color: var(--color-accent);
+}
+
+.order-detail-page h1 {
+  font-size: 2rem;
+  margin-bottom: 28px;
+}
+
+.order-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.order-detail-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+}
+.order-detail-section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.order-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+.order-info-row .label {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+
+.order-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.order-item-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border-light);
+}
+.order-item-row .item-name {
+  color: var(--color-text);
+}
+.order-item-row .item-price {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.order-total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 2px solid var(--color-border);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--color-text);
+}
+.order-total-row .total-amount {
+  color: var(--color-accent);
+}
+
+.order-detail-skeleton .skeleton-line {
+  background: linear-gradient(90deg, var(--color-bg-elevated) 25%, var(--color-surface-hover) 50%, var(--color-bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+
+.order-action-row {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.order-action-row .btn-block {
+  width: 100%;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (max-width: 760px) {
+  .order-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

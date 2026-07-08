@@ -14,6 +14,8 @@ import ResetPassword from './pages/ResetPassword';
 import Checkout from './pages/Checkout';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentCancel from './pages/PaymentCancel';
+import Orders from './pages/Orders'
+import OrderDetail from './pages/OrderDetail';
 import './styles/App.css';
 
 function ShopIcon() {
@@ -63,6 +65,7 @@ function Navbar({ user, onLogout }) {
 
         <nav className={`nav-links ${menuOpen ? 'nav-links-open' : ''}`}>
           <Link to="/shop">Shop</Link>
+          {user && <Link to="/orders">Orders</Link>}
           {user && <Link to="/cart">Cart</Link>}
           {user?.role === 'seller' && <Link to="/dashboard">Dashboard</Link>}
           <div className="nav-divider" />
@@ -166,6 +169,8 @@ export default function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/payment/cancel" element={<PaymentCancel />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/:id" element={<OrderDetail />} />
         </Routes>
       </main>
       <Footer />

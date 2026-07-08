@@ -172,7 +172,6 @@ export default function Register() {
       };
 
       const result = await api.post('/auth/register', payload, { auth: false });
-      // ✅ FIX: access nested data
       const { user, accessToken, refreshToken } = result.data;
       setTokens({ accessToken, refreshToken });
       setStoredUser(user);

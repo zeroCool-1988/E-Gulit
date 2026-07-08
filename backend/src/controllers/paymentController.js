@@ -27,7 +27,10 @@ const payment = {
     log.info(`Webhook received: ${tx_ref} - ${status}`);
 
     try {
-      const order = await Order.findByRef(tx_ref);
+      let order = await Order.findByChapaRef(tx_ref);
+      if (!order) {
+        order = await Order.findByRef(tx_ref);
+      }
       if (!order) {
         return res.status(404).json({ success: false, message: 'Order not found' });
       }

@@ -20,11 +20,13 @@ export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const tx_ref = searchParams.get('ref');
 
   useEffect(() => {
     if (!tx_ref) {
       setLoading(false);
+      setError('No order reference found.');
       return;
     }
 
@@ -34,6 +36,7 @@ export default function PaymentSuccess() {
         setLoading(false);
       })
       .catch(() => {
+        setError('Could not load order details.');
         setLoading(false);
       });
   }, [tx_ref]);
@@ -56,13 +59,35 @@ export default function PaymentSuccess() {
         <h1>Payment Successful!</h1>
         <p>Your order has been placed and will be processed shortly.</p>
 
-        {order && (
+        {error && (
+          <div className="form-error-banner">{error}</div>
+        )}
+
+        {order ? (
           <div className="order-details">
+            <h3 style={{ fontSize: '1.1rem', marginBottom: 12 }}>Receipt</h3>
             <p><strong>Order Reference:</strong> {order.order_ref}</p>
+            <p><strong>Date:</strong> {new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+            <p><strong>Status:</strong> {order.status}</p>
             <p><strong>Total Paid:</strong> {formatBirr(order.total)}</p>
             <p><strong>Delivery Address:</strong> {order.address}</p>
-            <p><strong>Status:</strong> {order.status}</p>
+
+            {order.items && order.items.length > 0 && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--color-border-light)' }}>
+                <p><strong>Items:</strong></p>
+                {order.items.map((item) => (
+                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', padding: '4px 0' }}>
+                    <span>{item.qty}x {item.product_name}</span>
+                    <span>{formatBirr(item.price_at_purchase || item.price)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+        ) : (
+          <p style={{ color: 'var(--color-text-faint)', marginTop: 16 }}>
+            We'll send a confirmation email with your order details.
+          </p>
         )}
 
         <div className="action-buttons">
