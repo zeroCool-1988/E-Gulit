@@ -1,4 +1,39 @@
+const { exec } = require('child_process');
+const { Pool } = require('pg');
 require('dotenv').config();
+
+async function autoSetupDB() {
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 100000,
+  });
+
+  try {
+    await pool.query("SELECT 1 FROM users LIMIT 1");
+    console.log('[+] Database already set up.');
+    await pool.end();
+    return;
+  } catch {
+    console.log('[+] Setting up database...');
+    await pool.end();
+
+    exec('npm run db:setup', { cwd: __dirname, shell: true }, (err, stdout, stderr) => {
+      if (err) { console.error('[-] Setup failed:', err); return; }
+      console.log(stdout);
+
+      // Populate the db
+      exec('npm run db:seed', { cwd: __dirname, shell: true }, (err2, stdout2, stderr2) => {
+        if (err2) { console.error('[-] Seed failed:', err2); return; }
+        console.log(stdout2);
+        console.log('[+] Database setup complete!');
+      });
+    });
+  }
+}
+
+autoSetupDB();
+
 const path = require('path');
 const express = require('express');
 const log = require('./config/logger');
