@@ -261,15 +261,3 @@ e-gulit-bazaar/
 ### Frontend
 1. Build: `npm run build`
 2. Deploy the `dist` folder to Netlify, Vercel, or your hosting provider.
-
----
-
-## License
-
-MIT
-
----
-
-## Credits
-
-Built for the Web Programming II capstone project at Addis Ababa University.
