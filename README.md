@@ -105,7 +105,9 @@ VITE_API_URL=http://localhost:3000/api
 ---
 ## Database Schema
 
-For a visual representation of the database schema, see the [ER Diagram](backend/database/ER.md).
+ER-Diagram as PNG
+
+<img src="backend/database/er-diagram.png" alt="ER Diagram" width="600" />
 
 The schema includes 10 tables:
 - users — authentication, roles, wallet
