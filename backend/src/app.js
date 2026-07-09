@@ -14,6 +14,9 @@ const negotiationRoutes = require('./routes/negotiationRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const { adminLimiter } = require('./config/rateLimiter');
+const adminRoutes = require('./routes/adminRoutes');
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -34,6 +37,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
   }
 }));
 
+app.use('/api/admin', adminLimiter, adminRoutes);
 app.get('/api/auth/check-username', authController.checkUsername);
 app.post('/api/auth/refresh', refreshLimiter, authController.refresh);
 app.use('/api/auth', authRoutes);

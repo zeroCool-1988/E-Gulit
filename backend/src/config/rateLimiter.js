@@ -25,4 +25,12 @@ const refreshLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { limiter, authLimiter, refreshLimiter };
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { success: false, message: 'Too many admin requests. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+module.exports = { limiter, authLimiter, refreshLimiter, adminLimiter };

@@ -13,9 +13,12 @@ const auth = {
       return res.status(400).json({ success: false, message: 'Missing fields' });
     }
 
-    if (!['buyer', 'seller', 'admin'].includes(role)) {
-      return res.status(400).json({ success: false, message: 'Invalid role' });
+    const allowedRoles = ['buyer', 'seller'];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ success: false, message: 'Invalid role. Must be buyer or seller.' });
     }
+
+    const finalRole = (role === 'seller') ? 'seller' : 'buyer';
 
     try {
       const normalizedUsername = username.trim();
@@ -40,28 +43,29 @@ const auth = {
         email,
         password_hash: hashed,
         full_name: normalizedFullName,
-        account_role: role,
+        account_role: finalRole,
         phone_number: normalizedPhone,
-        store_name: role === 'seller' ? store_name?.trim() || defaultStoreName : null,
-        stall_location: role === 'seller' ? stall_location?.trim() || null : null,
+        store_name: finalRole === 'seller' ? store_name?.trim() || defaultStoreName : null,
+        stall_location: finalRole === 'seller' ? stall_location?.trim() || null : null,
       });
 
       const token = generateToken();
       const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
       await User.setVerificationToken(user.id, token, expires);
       const verifyUrl = `${process.env.APP_URL || 'http://localhost:5173'}/verify/${token}`;
-      await sendEmail(  email, 
-  'Verify your E-Gulit account', 
-  `
-    <h2>Welcome to E-Gulit!</h2>
-    <p>Please verify your email address by clicking the button below:</p>
-    <a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:4px;">Verify Email</a>
-    <p>Or copy and paste this link into your browser:</p>
-    <p>${verifyUrl}</p>
-    <p>This link expires in 24 hours.</p>
-    <p>If you didn't create an account, you can ignore this email.</p>
-  `
-);
+      await sendEmail(
+        email,
+        'Verify your E-Gulit account',
+        `
+          <h2>Welcome to E-Gulit!</h2>
+          <p>Please verify your email address by clicking the button below:</p>
+          <a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:4px;">Verify Email</a>
+          <p>Or copy and paste this link into your browser:</p>
+          <p>${verifyUrl}</p>
+          <p>This link expires in 24 hours.</p>
+          <p>If you didn't create an account, you can ignore this email.</p>
+        `
+      );
 
       const payload = { id: user.id, username: user.username, role: user.account_role };
       const accessToken = jwt.generateAccessToken(payload);
@@ -224,7 +228,7 @@ const auth = {
     }
   },
 
-    async verify(req, res) {
+  async verify(req, res) {
     const { token } = req.params;
     try {
       const user = await User.verifyEmail(token);
@@ -250,16 +254,17 @@ const auth = {
       const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
       await User.setVerificationToken(user.id, token, expires);
       const verifyUrl = `${process.env.APP_URL || 'http://localhost:5173'}/verify/${token}`;
-      await sendEmail( email, 
-  'Verify your E-Gulit account', 
-  `
-    <h2>Email Verification</h2>
-    <p>Click the button below to verify your email:</p>
-    <a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:4px;">Verify Email</a>
-    <p>Or copy this link: ${verifyUrl}</p>
-    <p>This link expires in 24 hours.</p>
-  `
-);
+      await sendEmail(
+        email,
+        'Verify your E-Gulit account',
+        `
+          <h2>Email Verification</h2>
+          <p>Click the button below to verify your email:</p>
+          <a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:4px;">Verify Email</a>
+          <p>Or copy this link: ${verifyUrl}</p>
+          <p>This link expires in 24 hours.</p>
+        `
+      );
       res.json({ success: true, message: 'Verification email sent' });
     } catch (err) {
       log.error(`Resend verification error: ${err.message}`);
@@ -278,17 +283,18 @@ const auth = {
       const expires = new Date(Date.now() + 1 * 60 * 60 * 1000);
       await User.setResetToken(user.id, token, expires);
       const resetUrl = `${process.env.APP_URL || 'http://localhost:5173'}/reset-password/${token}`;
-      await sendEmail( email, 
-  'Reset your E-Gulit password', 
-  `
-    <h2>Password Reset Request</h2>
-    <p>You requested to reset your password. Click the button below:</p>
-    <a href="${resetUrl}" style="display:inline-block;padding:12px 24px;background-color:#2196F3;color:white;text-decoration:none;border-radius:4px;">Reset Password</a>
-    <p>Or copy this link: ${resetUrl}</p>
-    <p>This link expires in 1 hour.</p>
-    <p>If you didn't request this, ignore this email.</p>
-  `
-);
+      await sendEmail(
+        email,
+        'Reset your E-Gulit password',
+        `
+          <h2>Password Reset Request</h2>
+          <p>You requested to reset your password. Click the button below:</p>
+          <a href="${resetUrl}" style="display:inline-block;padding:12px 24px;background-color:#2196F3;color:white;text-decoration:none;border-radius:4px;">Reset Password</a>
+          <p>Or copy this link: ${resetUrl}</p>
+          <p>This link expires in 1 hour.</p>
+          <p>If you didn't request this, ignore this email.</p>
+        `
+      );
       res.json({ success: true, message: 'Password reset email sent' });
     } catch (err) {
       log.error(`Forgot password error: ${err.message}`);

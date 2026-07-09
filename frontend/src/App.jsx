@@ -20,6 +20,8 @@ import SellerDashboard from './pages/seller/SellerDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import EditProduct from './pages/seller/EditProduct';
 import AddProduct from './pages/seller/AddProduct';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 import './styles/App.css';
 
@@ -162,6 +164,9 @@ export default function App() {
       <main id="main">
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={ <ProtectedRoute roles={['admin']}> <AdminDashboard />  </ProtectedRoute> } />
+          <Route path="/admin/*" element={ <ProtectedRoute roles={['admin']}> <AdminDashboard /> </ProtectedRoute> } />
           <Route path="/shop" element={<Shop />} />
           <Route path="/shop/:id" element={<ProductDetail />} />
           <Route path="/login" element={<Login />} />
@@ -181,7 +186,7 @@ export default function App() {
           <Route path="/seller/products/new" element={ <ProtectedRoute roles={['seller']}> <AddProduct /> </ProtectedRoute> }/>
         </Routes>
       </main>
-      <Footer />
+      <Footer/>
     </div>
   );
 }
