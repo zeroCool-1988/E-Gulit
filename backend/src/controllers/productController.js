@@ -2,6 +2,7 @@ const Product = require('../models/ProductModel');
 const log = require('../config/logger');
 const path = require('path');
 const { getFileUrl, validateFiles } = require('../config/upload');
+const MAX_IMAGES = 5;
 
 const product = {
   async create(req, res) {
@@ -82,7 +83,7 @@ const product = {
 
   async update(req, res) {
     const { id } = req.params;
-    const { category_id, product_name, description, price, quantity_in_stock, product_condition, is_negotiable, is_featured, images } = req.body;
+    const { category_id, product_name, description, price, quantity_in_stock, product_condition, is_negotiable, is_featured } = req.body;
 
     try {
       const existing = await Product.findById(id);
@@ -94,6 +95,28 @@ const product = {
         return res.status(403).json({ success: false, message: 'Not your product' });
       }
 
+      let allImages = [];
+
+      if (req.body.existing_images) {
+        try {
+          const parsed = JSON.parse(req.body.existing_images);
+          if (Array.isArray(parsed)) {
+            allImages = parsed;
+          }
+        } catch (e) {
+        }
+      }
+
+      if (req.files && req.files.length > 0) {
+        const newImages = req.files.map(f => getFileUrl(req, f.filename));
+        const remainingSlots = MAX_IMAGES - allImages.length;
+        if (remainingSlots > 0 && newImages.length > 0) {
+          allImages = [...allImages, ...newImages.slice(0, remainingSlots)];
+        }
+      }
+
+      const images = allImages.length > 0 ? allImages : null;
+
       const product = await Product.update(id, {
         category_id,
         product_name,
@@ -101,14 +124,14 @@ const product = {
         price,
         quantity_in_stock,
         product_condition,
-        is_negotiable,
-        is_featured,
+        is_negotiable: is_negotiable === 'true' || is_negotiable === true,
+        is_featured: is_featured === 'true' || is_featured === true,
         images,
       });
 
       res.json({ success: true, data: product });
-    } catch (err) {
-      log.error(`Product update error: ${err.message}`);
+    } catch (e) {
+      log.error(`Product update error: ${e.message}`);
       res.status(500).json({ success: false, message: 'Failed to update product' });
     }
   },

@@ -14,6 +14,6 @@ module.exports = (req, res, next) => {
     next();
   } catch (err) {
     log.warn(`Auth failed: ${err.message}`);
-    res.status(401).json({ success: false, message: 'Invalid token' });
+    res.status(401).json({ success: false, message: 'Invalid token. Relogin please.' });
   }
 };

@@ -1,77 +1,75 @@
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { api } from '../api/apiClient';
+import { useEffect, useState, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { api, getStoredUser } from '../api/apiClient';
 import '../styles/ProductDetail.css';
-
-function IconDevice() {
-  return (
-    <svg viewBox="0 0 64 64" width="100%" height="100%" aria-hidden="true">
-      <rect x="14" y="12" width="36" height="34" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M24 52h16M32 46v6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M22 24l7 7 13-13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" opacity="0.35" />
-    </svg>
-  );
-}
-
-function IconTicketSmall() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M3 5.5A1.5 1.5 0 014.5 4h11A1.5 1.5 0 0117 5.5v2l-1.4 1.4L17 10.3v2A1.5 1.5 0 0115.5 14h-11A1.5 1.5 0 013 12.5v-2l1.4-1.4L3 7.5v-2z" fill="currentColor" />
-    </svg>
-  );
-}
 
 function IconArrowLeft() {
   return (
-    <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M12.5 4.5L6 10l6.5 5.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
     </svg>
   );
 }
 
-function IconAlert() {
+function IconArrowRight() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M10 6.5v4.2M10 13.3h.01" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
     </svg>
   );
 }
 
-function IconBox() {
+function IconClose() {
   return (
-    <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M3 6.5L10 3l7 3.5-7 3.5-7-3.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-      <path d="M3 6.5v7L10 17l7-3.5v-7M10 10v7" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M6 18L18 6M6 6l12 12"/>
     </svg>
   );
 }
 
-function IconTag() {
+function IconZoom() {
   return (
-    <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M9.5 3H5a2 2 0 00-2 2v4.5c0 .53.21 1.04.59 1.41l7 7a2 2 0 002.82 0l3.68-3.68a2 2 0 000-2.82l-7-7A2 2 0 009.5 3z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-      <circle cx="6.5" cy="6.5" r="1.1" stroke="currentColor" strokeWidth="1.2" />
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <circle cx="11" cy="11" r="7"/>
+      <path d="M21 21l-4.35-4.35M16 11h-4M14 9v4"/>
     </svg>
   );
 }
 
-function IconEye() {
+function IconShare() {
   return (
-    <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M2 10s3-5.5 8-5.5S18 10 18 10s-3 5.5-8 5.5S2 10 2 10z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-      <circle cx="10" cy="10" r="2.4" stroke="currentColor" strokeWidth="1.4" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="18" cy="5" r="3"/>
+      <circle cx="6" cy="12" r="3"/>
+      <circle cx="18" cy="19" r="3"/>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
     </svg>
   );
 }
 
-function IconStore() {
+function IconCart() {
   return (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M3 8l1-4h12l1 4" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-      <path d="M3 8a2 2 0 004 0 2 2 0 004 0 2 2 0 004 0 2 2 0 004 0" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-      <path d="M4 8.5V17h12V8.5" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M8 17v-5h4v5" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="21" r="1"/>
+      <circle cx="20" cy="21" r="1"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+    </svg>
+  );
+}
+
+function IconStar() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function IconStarFilled() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
     </svg>
   );
 }
@@ -80,36 +78,156 @@ function formatBirr(amount) {
   return `${Number(amount).toLocaleString('en-US')} birr`;
 }
 
+function getConditionLabel(condition) {
+  const map = {
+    new: 'New',
+    used: 'Used',
+    refurbished: 'Refurbished',
+  };
+  return map[condition] || condition;
+}
+
+function getConditionColor(condition) {
+  const map = {
+    new: '#2e7d32',
+    used: '#f57c00',
+    refurbished: '#6a1b9a',
+  };
+  return map[condition] || '#666';
+}
+
+function formatDate(date) {
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+function StarRating({ rating }) {
+  const fullStars = Math.floor(rating || 0);
+  const hasHalfStar = (rating || 0) % 1 >= 0.5;
+  const totalStars = 5;
+
+  return (
+    <div className="star-rating">
+      {[...Array(fullStars)].map((_, i) => (
+        <IconStarFilled key={`full-${i}`} />
+      ))}
+      {hasHalfStar && <IconStarFilled key="half" />}
+      {[...Array(totalStars - fullStars - (hasHalfStar ? 1 : 0))].map((_, i) => (
+        <IconStar key={`empty-${i}`} />
+      ))}
+    </div>
+  );
+}
+
 export default function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const user = getStoredUser();
+
   const [product, setProduct] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [reviewStats, setReviewStats] = useState({ average: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [adding, setAdding] = useState(false);
 
-  useEffect(() => {
-    let ignore = false;
-    setLoading(true);
-    setError('');
+  const [images, setImages] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
 
-    api
-      .get(`/products/${id}`, { auth: false })
-      .then((data) => {
-        if (!ignore) setProduct(data.data || data);
+  const imageContainerRef = useRef(null);
+
+  useEffect(() => {
+    Promise.all([
+      api.get(`/products/${id}`, { auth: false }),
+      api.get(`/reviews/product/${id}`, { auth: false }),
+    ])
+      .then(([productRes, reviewsRes]) => {
+        const p = productRes.data || productRes.data?.data || productRes;
+        setProduct(p);
+
+        const imgList = p.images && p.images.length > 0 ? p.images : ['/placeholder.png'];
+        setImages(imgList);
+        setCurrentIndex(0);
+
+        // Parse reviews response
+        const reviewsData = reviewsRes.data?.data || reviewsRes.data || reviewsRes;
+        setReviews(reviewsData.reviews || []);
+        setReviewStats({
+          average: parseFloat(reviewsData.average) || 0,
+          total: parseInt(reviewsData.total) || 0,
+        });
+
+        setLoading(false);
       })
       .catch((err) => {
-        if (!ignore) setError(err.message || 'Could not load this product.');
-      })
-      .finally(() => {
-        if (!ignore) setLoading(false);
+        setError(err.message || 'Could not load product.');
+        setLoading(false);
       });
-
-    return () => {
-      ignore = true;
-    };
   }, [id]);
 
-  async function handleAddToCart() {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!isLightboxOpen) return;
+      if (e.key === 'Escape') {
+        setIsLightboxOpen(false);
+      } else if (e.key === 'ArrowLeft') {
+        handleLightboxPrev(e);
+      } else if (e.key === 'ArrowRight') {
+        handleLightboxNext(e);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isLightboxOpen, images]);
+
+  const handleThumbnailClick = (index) => {
+    setCurrentIndex(index);
+  };
+
+  const handleNext = (e) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handlePrev = (e) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleLightboxOpen = () => {
+    setLightboxIndex(currentIndex);
+    setIsLightboxOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const handleLightboxClose = () => {
+    setIsLightboxOpen(false);
+    document.body.style.overflow = 'auto';
+  };
+
+  const handleLightboxNext = (e) => {
+    if (e) e.stopPropagation();
+    setLightboxIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handleLightboxPrev = (e) => {
+    if (e) e.stopPropagation();
+    setLightboxIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleAddToCart = async () => {
+    if (!user) {
+      alert('Please log in to add items to your cart.');
+      navigate('/login');
+      return;
+    }
     setAdding(true);
     try {
       await api.post('/cart', { product_id: product.id, quantity: 1 });
@@ -119,24 +237,56 @@ export default function ProductDetail() {
     } finally {
       setAdding(false);
     }
-  }
+  };
 
-  function handleNegotiate() {
-    alert('Negotiation opens here soon — for now, reach out to the seller directly.');
-  }
+  const handleNegotiate = () => {
+    if (!user) {
+      alert('Please log in to negotiate.');
+      navigate('/login');
+      return;
+    }
+    alert('Negotiation feature coming soon.');
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: product.product_name,
+        text: `Check out ${product.product_name} on E-Gulit!`,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isZoomed || !imageContainerRef.current) return;
+    const rect = imageContainerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomPosition({ x, y });
+  };
 
   if (loading) {
     return (
-      <div className="container product-detail">
-        <div className="skeleton-line back-skeleton" />
-        <div className="detail-grid">
-          <div className="detail-image skeleton-block" />
-          <div className="detail-info">
-            <div className="skeleton-line skeleton-width-30" />
-            <div className="skeleton-line skeleton-width-70 skeleton-height-30 mt-12" />
-            <div className="skeleton-line skeleton-width-40 skeleton-height-26 mt-16" />
-            <div className="skeleton-line skeleton-width-100 skeleton-height-90 mt-24" />
-            <div className="skeleton-line skeleton-width-35 skeleton-height-46 mt-24" />
+      <div className="product-detail-page">
+        <div className="container">
+          <div className="product-detail-grid skeleton">
+            <div className="left-col">
+              <div className="main-image skeleton-block" />
+              <div className="thumbnails skeleton-thumbs">
+                {[1,2,3,4,5].map(i => <div key={i} className="skeleton-thumb" />)}
+              </div>
+            </div>
+            <div className="right-col">
+              <div className="skeleton-line" style={{ width: '80%', height: 32 }} />
+              <div className="skeleton-line" style={{ width: '40%', height: 24 }} />
+              <div className="skeleton-line" style={{ width: '60%', height: 28 }} />
+              <div className="skeleton-line" style={{ width: '100%', height: 80 }} />
+              <div className="skeleton-line" style={{ width: '70%', height: 40 }} />
+            </div>
           </div>
         </div>
       </div>
@@ -145,87 +295,248 @@ export default function ProductDetail() {
 
   if (error || !product) {
     return (
-      <div className="container product-detail">
-        <div className="detail-error">
-          <IconAlert />
-          <h2>{error || 'Product not found'}</h2>
-          <p>The listing may have sold out or moved. Head back and take another look.</p>
-          <Link to="/shop" className="btn btn-primary">Back to shop</Link>
+      <div className="product-detail-page">
+        <div className="container">
+          <div className="error-state">
+            <h2>{error || 'Product not found'}</h2>
+            <Link to="/shop" className="btn btn-primary">Back to Shop</Link>
+          </div>
         </div>
       </div>
     );
   }
 
-  const stock = product.quantity_in_stock ?? 0;
-  const isOutOfStock = stock === 0;
+  const currentImage = images[currentIndex] || '/placeholder.png';
+  const isOutOfStock = (product.quantity_in_stock || 0) === 0;
 
   return (
-    <div className="container product-detail">
-      <Link to="/shop" className="back-link">
-        <IconArrowLeft /> Back to shop
-      </Link>
-
-      <div className="detail-grid">
-        <div className="detail-image">
-          <IconDevice />
-          {product.is_negotiable && (
-            <span className="badge-negotiate detail-badge">
-              <IconTicketSmall /> Negotiable
-            </span>
-          )}
+    <div className="product-detail-page">
+      <div className="container">
+        <div className="breadcrumb">
+          <Link to="/shop">Shop</Link>
+          <span>/</span>
+          <span>{product.product_name}</span>
         </div>
 
-        <div className="detail-info">
-          <span className="product-condition">{product.product_condition || 'New'}</span>
-          <h1 className="detail-title">{product.product_name}</h1>
-          <p className="price detail-price">{formatBirr(product.price)}</p>
-
-          <div className="detail-meta">
-            <span>
-              <IconBox />
-              {isOutOfStock ? 'Out of stock' : `${stock} available`}
-            </span>
-            <span>
-              <IconTag />
-              {product.category_name || 'Uncategorized'}
-            </span>
-            <span>
-              <IconEye />
-              {product.view_count || 0} views
-            </span>
-          </div>
-
-          <p className="detail-description">{product.description || 'No description available.'}</p>
-
-          <div className="detail-actions">
-            <button
-              className="btn btn-primary"
-              onClick={handleAddToCart}
-              disabled={adding || isOutOfStock}
+        <div className="product-detail-grid">
+          <div className="left-col">
+            <div
+              className={`main-image-wrapper ${isZoomed ? 'zoomed' : ''}`}
+              ref={imageContainerRef}
+              onMouseMove={handleMouseMove}
+              onMouseEnter={() => setIsZoomed(true)}
+              onMouseLeave={() => setIsZoomed(false)}
             >
-              {adding ? 'Adding…' : (isOutOfStock ? 'Out of stock' : 'Add to cart')}
-            </button>
-            {product.is_negotiable && (
-              <button className="btn btn-outline" onClick={handleNegotiate}>
-                <IconTicketSmall /> Make an offer
+              <img
+                src={currentImage}
+                alt={product.product_name}
+                onClick={handleLightboxOpen}
+                className="main-image"
+                style={
+                  isZoomed
+                    ? {
+                        transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                        transform: 'scale(2.2)',
+                      }
+                    : {}
+                }
+              />
+              <button className="zoom-icon" onClick={handleLightboxOpen}>
+                <IconZoom />
               </button>
+              {images.length > 1 && (
+                <>
+                  <button className="nav-arrow nav-left" onClick={handlePrev}>
+                    <IconArrowLeft />
+                  </button>
+                  <button className="nav-arrow nav-right" onClick={handleNext}>
+                    <IconArrowRight />
+                  </button>
+                  <span className="image-counter">{currentIndex + 1} / {images.length}</span>
+                </>
+              )}
+            </div>
+
+            {images.length > 1 && (
+              <div className="thumbnails">
+                {images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    className={`thumbnail ${idx === currentIndex ? 'active' : ''}`}
+                    onClick={() => handleThumbnailClick(idx)}
+                  >
+                    <img src={img} alt={`Thumbnail ${idx + 1}`} />
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 
-          <div className="detail-seller">
-            <div className="eyebrow">Seller</div>
-            <div className="seller-row">
-              <span className="seller-icon">
-                <IconStore />
+          <div className="right-col">
+            <h1 className="product-name">{product.product_name}</h1>
+            <div className="product-meta">
+              <span className="category">{product.category_name || 'Uncategorized'}</span>
+              {product.is_negotiable && (
+                <span className="badge-negotiate">Negotiable</span>
+              )}
+            </div>
+
+            <div className="product-price">{formatBirr(product.price)}</div>
+
+            <div className="product-attributes">
+              <span
+                className="condition-badge"
+                style={{ backgroundColor: getConditionColor(product.product_condition) }}
+              >
+                {getConditionLabel(product.product_condition)}
               </span>
-              <div>
-                <p className="seller-name">{product.seller_name || 'Unknown seller'}</p>
-                <p className="seller-store">{product.store_name || 'Store name not provided'}</p>
+              <span className={`stock-status ${isOutOfStock ? 'out-of-stock' : 'in-stock'}`}>
+                {isOutOfStock ? 'Out of Stock' : `In Stock (${product.quantity_in_stock})`}
+              </span>
+            </div>
+
+            <div className="product-description">
+              <p>{product.description || 'No description available.'}</p>
+            </div>
+
+            <div className="seller-card">
+              <div className="seller-info">
+                <div className="seller-avatar">
+                  <span>{product.seller_name ? product.seller_name.charAt(0).toUpperCase() : '?'}</span>
+                </div>
+                <div className="seller-details">
+                  <span className="seller-name">{product.seller_name || 'Unknown Seller'}</span>
+                  <span className="seller-store">{product.store_name || ''}</span>
+                </div>
               </div>
+              <Link to={`/seller/${product.seller_id}`} className="btn btn-outline btn-sm">
+                View Seller Profile
+              </Link>
+            </div>
+
+            <div className="action-buttons">
+              <button
+                className="btn btn-primary btn-lg add-to-cart"
+                onClick={handleAddToCart}
+                disabled={adding || isOutOfStock}
+              >
+                <IconCart /> {adding ? 'Adding…' : isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+              </button>
+              {product.is_negotiable && (
+                <button className="btn btn-outline btn-lg" onClick={handleNegotiate}>
+                  Negotiate Price
+                </button>
+              )}
+              <button className="btn btn-outline btn-lg share-btn" onClick={handleShare}>
+                <IconShare /> Share
+              </button>
             </div>
           </div>
         </div>
+
+        <div className="product-extras">
+          <div className="description-section">
+            <h2>Product Description</h2>
+            <p>{product.description || 'No description available.'}</p>
+          </div>
+          <div className="specs-section">
+            <h2>Specifications</h2>
+            <table>
+              <tbody>
+                <tr><td>Condition</td><td>{getConditionLabel(product.product_condition)}</td></tr>
+                <tr><td>Category</td><td>{product.category_name || 'Uncategorized'}</td></tr>
+                <tr><td>Stock</td><td>{product.quantity_in_stock || 0} units</td></tr>
+                <tr><td>Views</td><td>{product.view_count || 0}</td></tr>
+                <tr><td>Added</td><td>{new Date(product.created_at).toLocaleDateString()}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="reviews-section">
+          <div className="reviews-header">
+            <h2>Customer Reviews</h2>
+            {reviewStats.total > 0 && (
+              <div className="reviews-summary">
+                <div className="reviews-average">
+                  <span className="avg-number">{reviewStats.average.toFixed(1)}</span>
+                  <StarRating rating={reviewStats.average} />
+                  <span className="review-count">({reviewStats.total} reviews)</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {reviewStats.total === 0 ? (
+            <div className="no-reviews">
+              <p>No reviews yet for this product.</p>
+              <p className="no-reviews-sub">Be the first to review!</p>
+            </div>
+          ) : (
+            <div className="reviews-list">
+              {reviews.map((review) => (
+                <div key={review.id} className="review-card">
+                  <div className="review-header">
+                    <div className="review-user">
+                      <span className="review-avatar">
+                        {review.username ? review.username.charAt(0).toUpperCase() : '?'}
+                      </span>
+                      <span className="review-username">{review.username || 'Anonymous'}</span>
+                    </div>
+                    <div className="review-meta">
+                      <StarRating rating={review.rating} />
+                      <span className="review-date">{formatDate(review.created_at)}</span>
+                    </div>
+                  </div>
+                  <div className="review-body">
+                    <p>{review.comment || 'No comment provided.'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="related-section">
+          <h2>You might also like</h2>
+          <div className="related-grid">
+            <p style={{ color: 'var(--color-text-muted)' }}>Related products coming soon.</p>
+          </div>
+        </div>
       </div>
+
+      {isLightboxOpen && (
+        <div className="lightbox-overlay" onClick={handleLightboxClose}>
+          <button className="lightbox-close" onClick={handleLightboxClose}>
+            <IconClose />
+          </button>
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={images[lightboxIndex] || '/placeholder.png'}
+              alt="Product"
+              className="lightbox-image"
+            />
+            <button className="lightbox-nav lightbox-prev" onClick={handleLightboxPrev}>
+              <IconArrowLeft />
+            </button>
+            <button className="lightbox-nav lightbox-next" onClick={handleLightboxNext}>
+              <IconArrowRight />
+            </button>
+            <span className="lightbox-counter">{lightboxIndex + 1} / {images.length}</span>
+          </div>
+          <div className="lightbox-thumbnails">
+            {images.map((img, idx) => (
+              <button
+                key={idx}
+                className={`lightbox-thumb ${idx === lightboxIndex ? 'active' : ''}`}
+                onClick={() => setLightboxIndex(idx)}
+              >
+                <img src={img} alt={`Thumb ${idx + 1}`} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -18,6 +18,9 @@ import Orders from './pages/Orders'
 import OrderDetail from './pages/OrderDetail';
 import SellerDashboard from './pages/seller/SellerDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import EditProduct from './pages/seller/EditProduct';
+import AddProduct from './pages/seller/AddProduct';
+
 import './styles/App.css';
 
 function ShopIcon() {
@@ -174,6 +177,8 @@ export default function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:id" element={<OrderDetail />} />
           <Route path="/dashboard" element={ <ProtectedRoute roles={['seller']}> <SellerDashboard /> </ProtectedRoute> }/>
+          <Route path="/seller/products/:id/edit" element={ <ProtectedRoute roles={['seller']}> <EditProduct /> </ProtectedRoute> }/>
+          <Route path="/seller/products/new" element={ <ProtectedRoute roles={['seller']}> <AddProduct /> </ProtectedRoute> }/>
         </Routes>
       </main>
       <Footer />

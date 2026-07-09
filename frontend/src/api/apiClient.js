@@ -36,7 +36,6 @@ export function setStoredUser(user) {
     localStorage.removeItem('egulit_user');
     return;
   }
-
   localStorage.setItem('egulit_user', JSON.stringify(user));
 }
 
@@ -61,18 +60,29 @@ async function refreshAccessToken() {
 }
 
 export async function apiRequest(path, { method = 'GET', body, headers = {}, auth = true, retry = true } = {}) {
-  const finalHeaders = { 'Content-Type': 'application/json', ...headers };
+  const finalHeaders = { ...headers };
+
+  if (!(body instanceof FormData)) {
+    finalHeaders['Content-Type'] = 'application/json';
+  }
 
   if (auth) {
     const token = getAccessToken();
     if (token) finalHeaders.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const fetchOptions = {
     method,
     headers: finalHeaders,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  };
+
+  if (body instanceof FormData) {
+    fetchOptions.body = body;
+  } else if (body) {
+    fetchOptions.body = JSON.stringify(body);
+  }
+
+  const res = await fetch(`${BASE_URL}${path}`, fetchOptions);
 
   if (res.status === 401 && auth && retry) {
     try {
@@ -87,12 +97,10 @@ export async function apiRequest(path, { method = 'GET', body, headers = {}, aut
   let data = null;
   try {
     data = await res.json();
-  } catch {
-    
-  }
+  } catch {}
 
   if (!res.ok) {
-    const message = data?.message || data?.error || 'Something went wrong. Please try again.';
+    const message = data?.message || data?.error || 'Please try again.';
     throw new Error(message);
   }
 
