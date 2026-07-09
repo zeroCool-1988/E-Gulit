@@ -56,8 +56,10 @@ const adminRoutes = require('./routes/adminRoutes');
 const app = express();
 const port = process.env.PORT || 3000;
 
+const allowedOrigins = [process.env.APP_URL, 'http://localhost:5173'].filter(Boolean);
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: allowedOrigins,
   credentials: true,
 }));
 
